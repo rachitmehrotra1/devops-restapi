@@ -3,9 +3,15 @@ from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
 
+users = [{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}]
+
 @app.route('/')
 def index():
     return jsonify(name='Meeting REST API', version='1.0', url='/'), 200
+
+@app.route('/users', methods=['GET'])
+def list_users():
+    return reply(users, 200)
 
 def reply(message, rc):
     response = Response(json.dumps(message))
