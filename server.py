@@ -33,7 +33,7 @@ def delete_users(id):
 def list_users():
     global users
     users = get_from_redis('users')
-    return reply(json.dumps(users), HTTP_200_OK)
+    return reply(users, HTTP_200_OK)
 
 @app.route('/users', methods=['POST'])
 def create_user():
