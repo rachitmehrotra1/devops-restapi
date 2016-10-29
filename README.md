@@ -10,7 +10,9 @@ Entry points :
 
 # Running
 Runs on localhost:5000 by default
+
 You can user bluemix by setting the VCAP_SERVICES environment variable 
+
 Uses redis on localhost:6379 by default
 ```
 $ python server.py
@@ -18,7 +20,8 @@ $ python server.py
 
 # Endpoints
 ## Creating users
-POST /users\s\s
+POST /users
+
 Request body:
 ```
 {
@@ -36,7 +39,8 @@ Request body:
   ]
 }
 ```
-Response codes: 201 Created, 409 Conflicts\s\s 
+Response codes: 201 Created, 409 Conflicts 
+
 Response body:
 ```
 {
