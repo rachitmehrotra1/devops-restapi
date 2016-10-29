@@ -20,27 +20,27 @@ def index():
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
-    unpacked_users = redis_server.get('users')
-    users == unpacked_users
+    global users
+    users = get_from_redis('users') 
+    if not users.has_key(id):
+        return reply({ 'error' : 'User %s doesn\'t exist' % id }, HTTP_400_BAD_REQUEST)
+    del users[id];
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
-    del users[id];
-    return '', HTTP_204_NO_CONTENT
+    return reply('', HTTP_204_NO_CONTENT)
 
 @app.route('/users', methods=['GET'])
 def list_users():
-    if redis_server.get('users'):
-        unpacked_users = json.loads(redis_server.get('users'))
-    else:
-        unpacked_users = {}
-    return reply(unpacked_users, HTTP_200_OK)
+    global users
+    users = get_from_redis('users')
+    return reply(json.dumps(users), HTTP_200_OK)
 
 @app.route('/users', methods=['POST'])
 def create_user():
+    global users
     payload = json.loads(request.data)
-    id = payload['name']
-    unpacked_users = redis_server.get('users')
-    users == unpacked_users
+    id = str(payload['id'])
+    users = get_from_redis('users')
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
@@ -68,6 +68,13 @@ def init_redis(hostname, port, password):
     if not redis_server:
         print '*** FATAL ERROR: Could not conect to the Redis Service'
         exit(1)
+
+def get_from_redis(s):
+    unpacked = redis_server.get(s)
+    if unpacked:
+        return json.loads(unpacked)
+    else:
+        return {}
 
 if __name__ == "__main__":
     # Get the crdentials from the Bluemix environment
