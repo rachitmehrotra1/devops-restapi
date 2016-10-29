@@ -16,6 +16,11 @@ users = {'Carlos Guzman':{'id': 0, 'name': 'Carlos Guzman', 'times':[{'from':147
 def index():
     return jsonify(name='Meeting REST API', version='1.0', url='/'), 200
 
+@app.route('/users/<id>', methods=['DELETE'])
+def delete_users(id):
+    del users[id];
+    return '', HTTP_204_NO_CONTENT
+
 @app.route('/users', methods=['GET'])
 def list_users():
     return reply(users, HTTP_200_OK)
