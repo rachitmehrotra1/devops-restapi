@@ -2,8 +2,15 @@ import os
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
+# Status Codes
+HTTP_200_OK = 200
+HTTP_201_CREATED = 201
+HTTP_204_NO_CONTENT = 204
+HTTP_400_BAD_REQUEST = 400
+HTTP_404_NOT_FOUND = 404
+HTTP_409_CONFLICT = 409
 
-users = [{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}]
+users = {'Carlos Guzman':{'id': 0, 'name': 'Carlos Guzman', 'times':[{'from':1477523957, 'to':1477524957}]}}
 
 @app.route('/')
 def index():
@@ -11,7 +18,22 @@ def index():
 
 @app.route('/users', methods=['GET'])
 def list_users():
-    return reply(users, 200)
+    return reply(users, HTTP_200_OK)
+
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    payload = json.loads(request.data)
+    id = payload['name']
+    if users.has_key(id):
+        message = { 'error' : 'User %s already exists' % id }
+        rc = HTTP_409_CONFLICT
+    else:
+        users[id] = payload
+        message = users[id]
+        rc = HTTP_201_CREATED
+
+    return reply(message, rc)
 
 def reply(message, rc):
     response = Response(json.dumps(message))
