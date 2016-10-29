@@ -1,4 +1,5 @@
 import os
+import redis
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
@@ -41,7 +42,32 @@ def reply(message, rc):
     response.status_code = rc
     return response
 
+
+# Initialize Redis
+def init_redis(hostname, port, password):
+    # Connect to Redis Server
+    global redis_server
+    redis_server = redis.Redis(host=hostname, port=port, password=password)
+    if not redis_server:
+        print '*** FATAL ERROR: Could not conect to the Redis Service'
+        exit(1)
+
 if __name__ == "__main__":
+    # Get the crdentials from the Bluemix environment
+    if 'VCAP_SERVICES' in os.environ:
+        VCAP_SERVICES = os.environ['VCAP_SERVICES']
+        services = json.loads(VCAP_SERVICES)
+        redis_creds = services['rediscloud'][0]['credentials']
+        # pull out the fields we need
+        redis_hostname = redis_creds['hostname']
+        redis_port = int(redis_creds['port'])
+        redis_password = redis_creds['password']
+    else:
+        redis_hostname = '127.0.0.1'
+        redis_port = 6379
+        redis_password = None
+
+    init_redis(redis_hostname, redis_port, redis_password)
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port))
