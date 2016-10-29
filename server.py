@@ -29,9 +29,11 @@ def delete_users(id):
 
 @app.route('/users', methods=['GET'])
 def list_users():
-    unpacked_users = json.loads(redis_server.get('users'))
+    if redis_server.get('users'):
+        unpacked_users = json.loads(redis_server.get('users'))
+    else:
+        unpacked_users = {}
     return reply(unpacked_users, HTTP_200_OK)
-
 
 @app.route('/users', methods=['POST'])
 def create_user():
