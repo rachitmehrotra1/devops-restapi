@@ -20,6 +20,10 @@ def index():
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
+    unpacked_users = redis_server.get('users')
+    users == unpacked_users
+    json_users=json.dumps(users)
+    redis_server.set('users',json_users)
     del users[id];
     return '', HTTP_204_NO_CONTENT
 
