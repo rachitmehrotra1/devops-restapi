@@ -12,7 +12,7 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-users = {'Carlos Guzman':{'id': 0, 'name': 'Carlos Guzman', 'times':[{'from':1477523957, 'to':1477524957}]}}
+users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
 
 @app.route('/')
 def index():
