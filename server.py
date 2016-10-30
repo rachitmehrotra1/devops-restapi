@@ -16,7 +16,41 @@ users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to
 
 @app.route('/')
 def index():
-    return jsonify(name='Meeting REST API', version='1.0', url='/'), HTTP_200_OK
+    docs = {
+      "name": "Meeting REST API",
+      "version": "1.0",
+      "domain": "http://devchronops.mybluemix.net",
+      "url": [
+        {
+          "url":"/users",
+          "method": "GET",
+          "description": "Get all users"
+        },{
+          "url":"/users",
+          "method": "POST",
+          "description": "Create a user",
+          "sample_body": {
+            "id": 0,
+            "name": "John Rofrano",
+            "times": [
+              {
+                "from":1477523957,
+                "to":1477524957
+              }
+            ]
+          }
+        },{
+          "url":"/users",
+          "method": "DELETE",
+          "description": "Delete a user"
+        },{
+          "url":"/meet?users=<id1>,<id2>",
+          "method": "GET",
+          "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
+        }
+      ]
+    }
+    return reply(docs, HTTP_200_OK)
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
@@ -71,6 +105,10 @@ def meet():
     json_schedule = [{"from": x[0], "to": x[1], "people": x[2]}
                      for x in final_schedule]
     return reply(json_schedule, HTTP_200_OK)
+
+###################################################
+#                Helper Functions                 #
+###################################################
 
 def merge(sched1, sched2):
     sched1.sort()
