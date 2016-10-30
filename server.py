@@ -63,6 +63,22 @@ def delete_users(id):
     redis_server.set('users',json_users)
     return reply('', HTTP_204_NO_CONTENT)
 
+@app.route('/users/<id>', methods=['PUT'])
+def update_user(id):
+    global users
+    users = get_from_redis('users')
+    payload = json.loads(request.data)
+    if users.has_key(id):
+        users[id] = {'name': payload['name'], 'times': payload['times']}
+        json_users=json.dumps(users)
+        redis_server.set('users',json_users)
+        message = users[id]
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'User %s was not found' % id }
+        rc = HTTP_404_NOT_FOUND
+    return reply(message, rc)
+
 @app.route('/users', methods=['GET'])
 def list_users():
     global users
@@ -86,6 +102,7 @@ def create_user():
         redis_server.set('users',json_users)
 
     return reply(message, rc)
+
 
 @app.route('/meet', methods=['GET'])
 def meet():
@@ -186,7 +203,7 @@ def init_redis(hostname, port, password):
     global redis_server
     redis_server = redis.Redis(host=hostname, port=port, password=password)
     if not redis_server:
-        print '*** FATAL ERROR: Could not conect to the Redis Service'
+        print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
 
 def get_from_redis(s):
