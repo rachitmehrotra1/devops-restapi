@@ -162,7 +162,7 @@ def init_redis(hostname, port, password):
     global redis_server
     redis_server = redis.Redis(host=hostname, port=port, password=password)
     if not redis_server:
-        print '*** FATAL ERROR: Could not conect to the Redis Service'
+        print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
 
 def get_from_redis(s):
