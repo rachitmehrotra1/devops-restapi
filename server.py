@@ -16,7 +16,7 @@ users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to
 
 @app.route('/')
 def index():
-    return jsonify(name='Meeting REST API', version='1.0', url='/'), 200
+    return jsonify(name='Meeting REST API', version='1.0', url='/'), HTTP_200_OK
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
@@ -177,4 +177,3 @@ if __name__ == "__main__":
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port))
-
