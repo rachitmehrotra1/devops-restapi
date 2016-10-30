@@ -32,9 +32,12 @@ def delete_users(id):
 @app.route('/users/<id>', methods=['PUT'])
 def update_user(id):
     global users
+    users = get_from_redis('users')
     payload = json.loads(request.data)
     if users.has_key(id):
         users[id] = {'name': payload['name'], 'times': payload['times']}
+        json_users=json.dumps(users)
+        redis_server.set('users',json_users)
         message = users[id]
         rc = HTTP_200_OK
     else:
