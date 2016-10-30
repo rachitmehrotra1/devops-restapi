@@ -50,8 +50,28 @@ def create_user():
         rc = HTTP_201_CREATED
         json_users=json.dumps(users)
         redis_server.set('users',json_users)
-
     return reply(message, rc)
+
+## NOTE: committed and done on a different branch
+# @app.route('/users/<id>', methods=['GET'])
+# def get_user(id):
+#     global users
+#     users = get_from_redis('users')
+#     if not users.has_key(id):
+#         return reply({'error' : 'User %s doesn\'t exist' % id}, HTTP_400_BAD_REQUEST)
+#     return reply(users[id], HTTP_200_OK)
+
+
+@app.route('/users/<id>/times', methods=['POST'])
+def set_times(id):
+    global users
+    payload = json.loads(request.data)
+    return reply(payload)
+    users = get_from_redis('users')
+    if not users.has_key(id):
+        return reply({'error' : 'User %s doesn\'t exist' % id}, HTTP_400_BAD_REQUEST)
+    return reply(users[id]['times'], HTTP_200_OK)
+
 
 @app.route('/meet', methods=['GET'])
 def meet():
@@ -140,7 +160,6 @@ def reply(message, rc):
     response.headers['Content-Type'] = 'application/json'
     response.status_code = rc
     return response
-
 
 # Initialize Redis
 def init_redis(hostname, port, password):
