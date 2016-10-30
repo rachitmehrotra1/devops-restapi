@@ -29,6 +29,19 @@ def delete_users(id):
     redis_server.set('users',json_users)
     return reply('', HTTP_204_NO_CONTENT)
 
+@app.route('/users/<id>', methods=['PUT'])
+def update_user(id):
+    global users
+    payload = json.loads(request.data)
+    if users.has_key(id):
+        users[id] = {'name': payload['name'], 'times': payload['times']}
+        message = users[id]
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'User %s was not found' % id }
+        rc = HTTP_404_NOT_FOUND
+    return reply(message, rc)
+
 @app.route('/users', methods=['GET'])
 def list_users():
     global users
@@ -52,6 +65,7 @@ def create_user():
         redis_server.set('users',json_users)
 
     return reply(message, rc)
+
 
 @app.route('/meet', methods=['GET'])
 def meet():
