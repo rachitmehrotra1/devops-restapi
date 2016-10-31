@@ -85,6 +85,16 @@ def list_users():
     users = get_from_redis('users')
     return reply(users, HTTP_200_OK)
 
+
+@app.route('/users/<id>', methods=['GET'])
+def get_user(id):
+    global users
+    users = get_from_redis('users')
+    if not users.has_key(id):
+        return reply({'error' : 'User %s doesn\'t exist' % id}, HTTP_400_BAD_REQUEST)
+    return reply(users[id], HTTP_200_OK)
+
+
 @app.route('/users', methods=['POST'])
 def create_user():
     global users
