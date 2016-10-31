@@ -117,6 +117,29 @@ def set_times(id):
     redis_server.set('users',json_users)
     return reply(users[id], HTTP_200_OK)
 
+@app.route('/users/<id>/times', methods=['PUT'])
+def remove_times(id):
+    global users
+    payload = json.loads(request.data)
+    users = get_from_redis('users')
+    if not users.has_key(id):
+        return reply({'error' : 'User %s doesn\'t exist' % id}, HTTP_400_BAD_REQUEST)
+    if not payload.has_key('from') or not payload.has_key('to') \
+        and type(payload['from']) == int and type(payload['to']) == int:
+        return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
+    ndx = None
+    for i in range(len(users[id]['times'])):
+        if users[id]['times'][i]['from'] == payload['from'] \
+            and users[id]['times'][i]['to'] == payload['to']:
+            ndx = i
+            break
+    if ndx:
+        del users[id]['times'][ndx]
+        json_users = json.dumps(users)
+        redis_server.set('users', json_users)
+        return reply(users[id], HTTP_200_OK)
+    else:
+        return reply({'error' : 'Body must already be within the timeslots'}, HTTP_400_BAD_REQUEST)
 
 @app.route('/meet', methods=['GET'])
 def meet():
