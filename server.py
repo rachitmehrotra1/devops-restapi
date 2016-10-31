@@ -16,7 +16,41 @@ users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to
 
 @app.route('/')
 def index():
-    return jsonify(name='Meeting REST API', version='1.0', url='/'), HTTP_200_OK
+    docs = {
+      "name": "Meeting REST API",
+      "version": "1.0",
+      "domain": "http://devchronops.mybluemix.net",
+      "url": [
+        {
+          "url":"/users",
+          "method": "GET",
+          "description": "Get all users"
+        },{
+          "url":"/users",
+          "method": "POST",
+          "description": "Create a user",
+          "sample_body": {
+            "id": 0,
+            "name": "John Rofrano",
+            "times": [
+              {
+                "from":1477523957,
+                "to":1477524957
+              }
+            ]
+          }
+        },{
+          "url":"/users",
+          "method": "DELETE",
+          "description": "Delete a user"
+        },{
+          "url":"/meet?users=<id1>,<id2>",
+          "method": "GET",
+          "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
+        }
+      ]
+    }
+    return reply(docs, HTTP_200_OK)
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
@@ -28,6 +62,22 @@ def delete_users(id):
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
     return reply('', HTTP_204_NO_CONTENT)
+
+@app.route('/users/<id>', methods=['PUT'])
+def update_user(id):
+    global users
+    users = get_from_redis('users')
+    payload = json.loads(request.data)
+    if users.has_key(id):
+        users[id] = {'name': payload['name'], 'times': payload['times']}
+        json_users=json.dumps(users)
+        redis_server.set('users',json_users)
+        message = users[id]
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'User %s was not found' % id }
+        rc = HTTP_404_NOT_FOUND
+    return reply(message, rc)
 
 @app.route('/users', methods=['GET'])
 def list_users():
@@ -67,6 +117,7 @@ def set_times(id):
     redis_server.set('users',json_users)
     return reply(users[id], HTTP_200_OK)
 
+
 @app.route('/meet', methods=['GET'])
 def meet():
     global users
@@ -85,6 +136,10 @@ def meet():
     json_schedule = [{"from": x[0], "to": x[1], "people": x[2]}
                      for x in final_schedule]
     return reply(json_schedule, HTTP_200_OK)
+
+###################################################
+#                Helper Functions                 #
+###################################################
 
 def merge(sched1, sched2):
     sched1.sort()
@@ -161,7 +216,7 @@ def init_redis(hostname, port, password):
     global redis_server
     redis_server = redis.Redis(host=hostname, port=port, password=password)
     if not redis_server:
-        print '*** FATAL ERROR: Could not conect to the Redis Service'
+        print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
 
 def get_from_redis(s):
