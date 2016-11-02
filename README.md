@@ -18,43 +18,8 @@ Uses redis on localhost:6379 by default
 $ python server.py
 ```
 
-# Endpoints
-## Creating users
-POST /users
+# Documentation
+Visit the api root for all information about endpoints and possibilities:
 
-Request body:
-```
-{
-  "name": "Foo Bar", 
-  "id": 0, 
-  "times": [
-    {
-      "from":10, 
-      "to":30
-    },
-    {
-      "from":50, 
-      "to":60
-    }
-  ]
-}
-```
-Response codes: 201 Created, 409 Conflicts 
+http://localhost:5000/
 
-Response body:
-```
-{
-  "name": "Foo Bar", 
-  "id": 0, 
-  "times": [
-    {
-      "from":10, 
-      "to":30
-    },
-    {
-      "from":50, 
-      "to":60
-    }
-  ]
-}
-```

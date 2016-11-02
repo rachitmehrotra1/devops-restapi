@@ -24,7 +24,15 @@ def index():
         {
           "url":"/users",
           "method": "GET",
-          "description": "Get all users"
+          "description": "List all users"
+        },{
+          "url":"/users/<id>",
+          "method": "GET",
+          "description": "Get user with id <id>"
+        },{
+          "url":"/meet?users=<id1>,<id2>",
+          "method": "GET",
+          "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
         },{
           "url":"/users",
           "method": "POST",
@@ -40,13 +48,41 @@ def index():
             ]
           }
         },{
+          "url":"/users/<id>/times",
+          "method": "POST",
+          "description": "Add a time interval for user with id <id>",
+          "sample_body": {
+            "from":1477523957,
+            "to":1477524957
+          }
+        },{
           "url":"/users",
           "method": "DELETE",
           "description": "Delete a user"
         },{
-          "url":"/meet?users=<id1>,<id2>",
-          "method": "GET",
-          "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
+          "url":"/users/<id>/times",
+          "method": "PUT",
+          "description": "Delete time interval specified for user with id <id>",
+          "sample_body": {
+            "from":1477523967,
+            "to":1477524958
+          }     
+        },{
+          "url":"/users/<id>",
+          "method": "PUT",
+          "description": "Update user with id <id>. Updates name and times",
+          "sample_body": {
+            "name": "JR",
+            "times": [
+              {
+                "from":1477523967,
+                "to":1477524958
+              },{
+                "from":14772396000,
+                "to":  147752490000
+              }
+            ]
+          }     
         }
       ]
     }
