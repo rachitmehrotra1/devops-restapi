@@ -56,7 +56,7 @@ def index():
             "to":1477524957
           }
         },{
-          "url":"/users",
+          "url":"/users/<id>",
           "method": "DELETE",
           "description": "Delete a user"
         },{
