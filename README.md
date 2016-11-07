@@ -19,6 +19,7 @@ $ python server.py
 ```
 
 # Documentation
+
 Visit the api root for all information about endpoints and possibilities:
 
 http://localhost:5000/
