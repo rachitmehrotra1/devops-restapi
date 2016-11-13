@@ -87,4 +87,13 @@ Vagrant.configure(2) do |config|
     cf plugins
   SHELL
 
+  #Build and run the docker container linked to redis
+  config.vm.provision "shell", inline: <<-SHELL
+    cd /vagrant
+    #build the container
+    docker build -t docker-server .
+    #run the container linked to redis
+    docker run --rm -p 5000:5000 --link redis docker-server
+  SHELL
+
 end
