@@ -87,4 +87,11 @@ Vagrant.configure(2) do |config|
     cf plugins
   SHELL
 
+  #Build  docker container 
+  config.vm.provision "shell", inline: <<-SHELL
+    cd /vagrant
+    #build the container
+    docker build -t docker-server .w
+  SHELL
+
 end
