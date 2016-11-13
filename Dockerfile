@@ -21,7 +21,7 @@ ADD requirements.txt /app
 RUN pip install -r requirements.txt
 
 # Add the code as the last Docker layer because it changes the mos
-ADD service.py /app
+ADD server.py /app
 
 # Run the service
 CMD [ "python", "server.py" ]
