@@ -24,4 +24,4 @@ RUN pip install -r requirements.txt
 ADD service.py /app
 
 # Run the service
-CMD [ "python", "service.py" ]
+CMD [ "python", "server.py" ]
