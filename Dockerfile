@@ -3,6 +3,7 @@ FROM alpine:latest
 
 # Document who is responsible for this image
 MAINTAINER Sydney Schweber "ss6018@nyu.edu"
+LABEL authors="Sydney Schweber,Rachit Mehrotra"
 
 # Install just the Python runtime (no dev)
 RUN apk add --update \
@@ -19,8 +20,7 @@ WORKDIR /app
 ADD requirements.txt /app
 RUN pip install -r requirements.txt
 
-# Add the code as the last Docker layer because it changes the most
-ADD static /app/static
+# Add the code as the last Docker layer because it changes the mos
 ADD service.py /app
 
 # Run the service
