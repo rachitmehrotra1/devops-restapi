@@ -135,8 +135,9 @@ def get_user(id):
 def create_user():
     global users
     payload = json.loads(request.data)
-    id = str(payload['id'])
+    # id = str(payload['id'])
     users = get_from_redis('users')
+    id = len(users) + 1
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
