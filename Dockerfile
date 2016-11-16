@@ -16,6 +16,7 @@ ENV PORT 5000
 EXPOSE $PORT
 
 # Set up a working folder and install the pre-reqs
+RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt /app
 RUN pip install -r /app/requirements.txt
