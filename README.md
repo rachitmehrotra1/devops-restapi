@@ -1,4 +1,5 @@
 # devops-restapi
+Can Be Used for testing as starts up everything as a demon on vagrant up itself so no need to ssh too! DO NOT MERGE TO MASTER
 Devops Assignment - RESTful API and Agile development
 
 This project contains a minimalistic service that lets people (“users”) input in their available times. And then use the “meet” function to find common time that set of users are available to get a meeting time.
