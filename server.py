@@ -3,7 +3,7 @@ import redis
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
-#app.debug = True
+app.debug = True
 # Status Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
@@ -135,10 +135,8 @@ def get_user(id):
 def create_user():
     global users
     payload = json.loads(request.data)
-    # id = str(payload['id'])
     users = get_from_redis('users')
     id = len(users) + 1
-    print ' '+len(users)
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
