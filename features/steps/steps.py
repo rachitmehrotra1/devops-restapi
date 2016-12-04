@@ -12,3 +12,19 @@ def step_impl(context):
 @then(u'I should not see "{message}"')
 def step_impl(context, message):
 	assert message not in context.resp.data
+
+@given(u'the following JSON is parsed')
+def step_impl(context):
+	users = {}
+	for row in context.table:
+		users[row['name']] = {'name': row['name'], 'times': row['times']}
+	context.server.users = users
+
+@when(u'I visit \'{url}\'')
+def step_impl(context, url):
+	context.resp = context.app.get(url)
+	assert context.resp.status_code == 200
+
+@then(u'I should see \'{name}\'')
+def step_impl(context, name):
+	assert name in context.resp.data
