@@ -283,7 +283,7 @@ def reply(message, rc):
 def init_redis(hostname, port, password):
     # Connect to Redis Server
     global redis_server
-    redis_server = redis.Redis(host=hostname, port=port, password=password)
+    redis_server = Redis(host=hostname, port=port, password=password)
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -296,7 +296,7 @@ def get_from_redis(s):
         return {}
 # delete all data
 def data_reset():
-    redis.flushall()
+    redis_server.flushall()
 
 ######################################################################
 # INITIALIZE Redis
@@ -319,7 +319,7 @@ def inititalize_redis():
     else:
         print "VCAP_SERVICES not found, checking localhost for Redis"
         redis_server = init_redis('127.0.0.1', 6379, None)
-        if not redis:
+        if not redis_server:
             print "No Redis on localhost, pinging: redis_server"
             response = os.system("ping -c 1 redis")
             if response == 0:
