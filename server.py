@@ -279,6 +279,9 @@ def reply(message, rc):
     response.status_code = rc
     return response
 
+def data_reset():
+    redis_server.flushall()
+
 # Initialize Redis
 def init_redis():
     # Connect to Redis Server
