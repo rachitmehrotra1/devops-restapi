@@ -13,12 +13,19 @@ def step_impl(context):
 def step_impl(context, message):
 	assert message not in context.resp.data
 
-@given(u'the following JSON is parsed')
+@given(u'the following users')
 def step_impl(context):
 	users = {}
 	for row in context.table:
-		users[row['name']] = {'name': row['name'], 'times': row['times']}
+		users[row['name']] = {'name': row['name']}
 	context.server.users = users
+
+@given(u'the following times for user \"{name}\"')
+def step_impl(context, name):
+	users = {}
+	users['name'] = {'name': name}
+	for row in context.table:
+		users['times'] = {'from': row['from'], 'to': row['to']}
 
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):

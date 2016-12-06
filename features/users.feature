@@ -11,23 +11,16 @@ Scenario: The server is running
     Then I should not see "404 Not Found"
 
 Scenario: List all users
-	Given the following JSON is parsed:
-	"""
-	[
-	  {
-		"name": "JR",
-            "times": [
-              {
-                "from":1477523967,
-                "to":1477524958
-              },{
-                "from":14772396000,
-                "to":  147752490000
-              }
-            ]
-       }
-    ]
-    """
+	Given the following users
+		|	name	|	times	|
+		|	john	|			|
+		|	sydney	|			|
+	Given the following times for user "john"
+		|	from	|	to		|
+		|	1477523967	|	1477534958	|
 		
 	When I visit '/users'
-	Then I should see 'JR'
+	Then I should see 'john'
+	And I should see 'sydney'
+	And I should see '1477523967'
+	And I should see '1477534958'
