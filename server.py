@@ -12,7 +12,7 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
+users = {"0":{"name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
 
 @app.route('/')
 def index():
@@ -135,8 +135,8 @@ def get_user(id):
 def create_user():
     global users
     payload = json.loads(request.data)
-    id = str(payload['id'])
     users = get_from_redis('users')
+    id = len(users) + 1
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
@@ -280,10 +280,22 @@ def reply(message, rc):
     return response
 
 # Initialize Redis
-def init_redis(hostname, port, password):
+def init_redis():
     # Connect to Redis Server
+    if 'VCAP_SERVICES' in os.environ:
+        VCAP_SERVICES = os.environ['VCAP_SERVICES']
+        services = json.loads(VCAP_SERVICES)
+        redis_creds = services['rediscloud'][0]['credentials']
+        # pull out the fields we need
+        redis_hostname = redis_creds['hostname']
+        redis_port = int(redis_creds['port'])
+        redis_password = redis_creds['password']
+    else:
+        redis_hostname = '127.0.0.1'
+        redis_port = 6379
+        redis_password = None
     global redis_server
-    redis_server = Redis(host=hostname, port=port, password=password)
+    redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -294,44 +306,12 @@ def get_from_redis(s):
         return json.loads(unpacked)
     else:
         return {}
-# delete all data
-def data_reset():
-    redis_server.flushall()
-
-######################################################################
-# INITIALIZE Redis
-# This method will work in the following conditions:
-#   1) In Bluemix with Redsi bound through VCAP_SERVICES
-#   2) With Redis running on the local server as with Travis CI
-#   3) With Redis --link ed in a Docker container called 'redis'
-######################################################################
-def inititalize_redis():
-    global redis_server
-    redis_server = None
-    # Get the crdentials from the Bluemix environment
-    if 'VCAP_SERVICES' in os.environ:
-        print "Using VCAP_SERVICES..."
-        VCAP_SERVICES = os.environ['VCAP_SERVICES']
-        services = json.loads(VCAP_SERVICES)
-        creds = services['rediscloud'][0]['credentials']
-        print "Conecting to Redis on host %s port %s" % (creds['hostname'], creds['port'])
-        redis_server = init_redis(creds['hostname'], creds['port'], creds['password'])
-    else:
-        print "VCAP_SERVICES not found, checking localhost for Redis"
-        redis_server = init_redis('127.0.0.1', 6379, None)
-        if not redis_server:
-            print "No Redis on localhost, pinging: redis_server"
-            response = os.system("ping -c 1 redis")
-            if response == 0:
-                print "Connecting to remote: redis"
-                redis_server = init_redis('redis', 6379, None)
-    if not redis_server:
-        # if you end up here, redis instance is down.
-        print '*** FATAL ERROR: Could not connect to the Redis Service'
-        exit(1)
 
 if __name__ == "__main__":
-    inititalize_redis()
+    # Get the crdentials from the Bluemix environment
+    
+
+    init_redis()
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port))
