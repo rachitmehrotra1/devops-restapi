@@ -17,10 +17,13 @@ def step_impl(context, message):
 @given(u'the following users')
 def step_impl(context):
 	users = {}
+	i = 1
 	for row in context.table:
-		users[row['name']] = {'name': row['name']}
-	#print (users)
+		users[i] = {'name': row['name'], 'times': row['times']}
+		i = i + 1
+	print (users)
 	context.server.users = users
+
 
 @given(u'the following times for user \"{name}\"')
 def step_impl(context, name):
@@ -28,6 +31,7 @@ def step_impl(context, name):
 	users['name'] = {'name': name}
 	for row in context.table:
 		users['times'] = {'from': row['from'], 'to': row['to']}
+	# context.server.users = users
 
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):
@@ -36,4 +40,10 @@ def step_impl(context, url):
 
 @then(u'I should see \'{name}\'')
 def step_impl(context, name):
+	print (context.server.users)
 	assert name in context.resp.data
+
+@then(u'I should see a list of users')
+def step_impl(context):
+    assert context.resp.status_code == 200
+    assert len(context.resp.data) > 0

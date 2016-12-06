@@ -20,7 +20,17 @@ Scenario: List all users
 		|	1477523967	|	1477534958	|
 		
 	When I visit '/users'
-	Then I should see 'john'
-	And I should see 'sydney'
-	And I should see '1477523967'
-	And I should see '1477534958'
+	Then I should see a list of users
+	# And I should see 'john'
+
+Scenario: Get a user
+	Given the following users
+		|	name	|	times	|
+		|	John	|			|
+	Given the following times for user "john"
+		|	from	|	to		|
+		|	1477523957	|	1477524957	|
+		
+	When I visit '/users/1'
+	Then I should see 'John'
+	And I should see '1477523957'
