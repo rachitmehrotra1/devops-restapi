@@ -21,16 +21,29 @@ Scenario: List all users
 		
 	When I visit '/users'
 	Then I should see a list of users
-	# And I should see 'john'
+	And I should see 'john'
 
 Scenario: Get a user
 	Given the following users
 		|	name	|	times	|
 		|	John	|			|
-	Given the following times for user "john"
+	Given the following times for user "John"
 		|	from	|	to		|
 		|	1477523957	|	1477524957	|
 		
 	When I visit '/users/1'
 	Then I should see 'John'
 	And I should see '1477523957'
+
+Scenario: Delete a user
+	Given the following users
+		|	name	|	times	|
+		|	John	|			|
+	Given the following times for user "John"
+		|	from	|	to		|
+		|	1477523957	|	1477524957	|
+	When I visit '/users'
+	Then I should see 'John'
+	When I delete '/users/1'
+	And I visit '/users'
+	Then I should not see 'John'

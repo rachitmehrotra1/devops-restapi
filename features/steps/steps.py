@@ -21,7 +21,7 @@ def step_impl(context):
 	for row in context.table:
 		users[i] = {'name': row['name'], 'times': row['times']}
 		i = i + 1
-	print (users)
+	#print (users)
 	context.server.users = users
 
 
@@ -36,6 +36,7 @@ def step_impl(context, name):
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):
 	context.resp = context.app.get(url)
+	#print (context.resp)
 	assert context.resp.status_code == 200
 
 @then(u'I should see \'{name}\'')
@@ -47,3 +48,12 @@ def step_impl(context, name):
 def step_impl(context):
     assert context.resp.status_code == 200
     assert len(context.resp.data) > 0
+
+@when(u'I delete \'{url}\'')
+def step_impl(context, url):
+	context.resp = context.app.delete(url)
+	assert context.resp.status_code == 204
+
+@then(u'I should not see \'{name}\'')
+def step_impl(context, name):
+	assert name not in context.resp.data
