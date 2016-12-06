@@ -4,6 +4,7 @@ import server
 def step_impl(context):
 	context.app = server.app.test_client()
 	context.server = server
+	context.server.init_redis()
 
 @when(u'I visit the "home page"')
 def step_impl(context):
@@ -18,6 +19,7 @@ def step_impl(context):
 	users = {}
 	for row in context.table:
 		users[row['name']] = {'name': row['name']}
+	#print (users)
 	context.server.users = users
 
 @given(u'the following times for user \"{name}\"')
