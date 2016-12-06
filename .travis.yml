@@ -9,8 +9,8 @@ install: "pip install -r requirements.txt"
 before_script: redis-cli ping
 
 script:
- # - nosetests
- # - coverage run test_server.py
+  - behave
+  - coverage run test_server.py
 
 after_success:
   - codecov
