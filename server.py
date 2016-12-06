@@ -12,7 +12,7 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
+users = {"0":{"name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
 
 @app.route('/')
 def index():
@@ -135,8 +135,8 @@ def get_user(id):
 def create_user():
     global users
     payload = json.loads(request.data)
-    id = str(payload['id'])
     users = get_from_redis('users')
+    id = len(users) + 1
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
