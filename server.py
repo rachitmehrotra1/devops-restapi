@@ -198,6 +198,11 @@ def meet():
                                         for x in users[_id]['times']],
                             ids)
     final_schedule = reduce(merge, single_schedules)
+
+    # Keep only the intervals greater than the duration
+    duration = request.args.get('length') or 0
+    final_schedule = filter(lambda x: x[1]-x[0]>= int(duration), final_schedule)
+    
     # Return the times where most people can meet
     max_people = len(max(final_schedule, key=lambda x: len(x[2]))[2])
     final_schedule = filter(lambda x: len(x[2])==max_people, final_schedule)
