@@ -306,8 +306,8 @@ def data_reset():
 #   3) With Redis --link ed in a Docker container called 'redis'
 ######################################################################
 def inititalize_redis():
-    global redis
-    redis = None
+    global redis_server
+    redis_server = None
     # Get the crdentials from the Bluemix environment
     if 'VCAP_SERVICES' in os.environ:
         print "Using VCAP_SERVICES..."
@@ -315,17 +315,17 @@ def inititalize_redis():
         services = json.loads(VCAP_SERVICES)
         creds = services['rediscloud'][0]['credentials']
         print "Conecting to Redis on host %s port %s" % (creds['hostname'], creds['port'])
-        redis = connect_to_redis(creds['hostname'], creds['port'], creds['password'])
+        redis_server = init_redis(creds['hostname'], creds['port'], creds['password'])
     else:
         print "VCAP_SERVICES not found, checking localhost for Redis"
-        redis = connect_to_redis('127.0.0.1', 6379, None)
+        redis_server = init_redis('127.0.0.1', 6379, None)
         if not redis:
-            print "No Redis on localhost, pinging: redis"
+            print "No Redis on localhost, pinging: redis_server"
             response = os.system("ping -c 1 redis")
             if response == 0:
                 print "Connecting to remote: redis"
-                redis = connect_to_redis('redis', 6379, None)
-    if not redis:
+                redis_server = init_redis('redis', 6379, None)
+    if not redis_server:
         # if you end up here, redis instance is down.
         print '*** FATAL ERROR: Could not connect to the Redis Service'
         exit(1)
