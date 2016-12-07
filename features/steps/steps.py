@@ -21,37 +21,41 @@ def step_impl(context):
 	server.data_reset()
 	users = {}
 	url = '/users'
-	i = 1
+	i = str(1)
 	for row in context.table:
-		users[i] = {'name': row['name'], 'times': row['times']}
+		user = {'name': row['name'], 'times': {'from':row['times_from'],'to':row['times_to']}}
+		context.resp = context.app.post(url, data=json.dumps(user), content_type='application/json')
+		users[i] = user
 		#context.resp = context.app.post(url, data=json.dumps())
-		i = i + 1
+		i = str(int(i) + 1)
 	#print (context.redis)
 	#context.app.put(users)
-	context.resp = context.app.post(url, data=json.dumps(users), content_type='application/json')
+	# context.resp = context.app.post(url, data=json.dumps(users), content_type='application/json')
 	context.server.users = users
 
 @given(u'the following times for user \"{name}\" with userID {ID}')
 def step_impl(context, name, ID):
 	users = context.server.users
-	url = '/users'
-	user = users[int(ID)]
-	for row in context.table:
-		user['times'] = {'from': row['from'], 'to': row['to']}
+	url = '/users/'+str(ID)+'/times'
+	print("Daaaaa")
 	print(users)
+	user = users[str(ID)]
+	i = 0
+	payloadz = {}
+	for row in context.table:
+		payloadz = {'from': row['from'], 'to': row['to']}
+	
 	#users[int(ID)] = user
-	context.resp = context.app.put(url, data=json.dumps(users), content_type='application/json')
-	print (context.resp.data)
+
+	context.resp = context.app.post(url, data=json.dumps(payloadz), content_type='application/json')
 
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):
 	context.resp = context.app.get(url)
-	print (context.resp.data)
 	assert context.resp.status_code == 200
 
 @then(u'I should see \'{name}\'')
 def step_impl(context, name):
-	#print (context.resp.data)
 	assert name in context.resp.data
 
 @then(u'I should see a list of users')
