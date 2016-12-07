@@ -37,8 +37,6 @@ def step_impl(context):
 def step_impl(context, name, ID):
 	users = context.server.users
 	url = '/users/'+str(ID)+'/times'
-	print("Daaaaa")
-	print(users)
 	user = users[str(ID)]
 	i = 0
 	payloadz = {}
