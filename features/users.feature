@@ -65,4 +65,11 @@ Scenario: Update a user
 		|	1478523957	|	1478524957	|
 	When I visit '/users/2'
 	Then I should see '1478523957'
+
+Scenario: Meet users - 2 users basic functionality
+  Given the following users
+		|	name	|	times_from	|	times_to	|
+		|	John	|				|				|
+		|	Sydney	|				|				|
+  
 	

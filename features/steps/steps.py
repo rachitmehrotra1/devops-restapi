@@ -23,7 +23,7 @@ def step_impl(context):
 	url = '/users'
 	i = str(1)
 	for row in context.table:
-		user = {'name': row['name'], 'times': {'from':row['times_from'],'to':row['times_to']}}
+		user = {'name': row['name'], 'times': []}
 		context.resp = context.app.post(url, data=json.dumps(user), content_type='application/json')
 		users[i] = user
 		#context.resp = context.app.post(url, data=json.dumps())
@@ -39,13 +39,11 @@ def step_impl(context, name, ID):
 	url = '/users/'+str(ID)+'/times'
 	user = users[str(ID)]
 	i = 0
-	payloadz = {}
+	payloadz = []
 	for row in context.table:
-		payloadz = {'from': row['from'], 'to': row['to']}
+		context.app.post(url, data=json.dumps({'from': row['from'], 'to': row['to']}), content_type='application/json')
 	
 	#users[int(ID)] = user
-
-	context.resp = context.app.post(url, data=json.dumps(payloadz), content_type='application/json')
 
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):

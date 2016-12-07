@@ -160,7 +160,7 @@ def set_times(id):
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
     
     # print(users['2'])
-    users[id]['times']=payload
+    users[id]['times'].append(payload)
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
     return reply(users[id], HTTP_200_OK)
