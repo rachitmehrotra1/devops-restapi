@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/rachitmehrotra1/devops-restapi.svg?branch=master)](https://travis-ci.org/rachitmehrotra1/devops-restapi)
-
 # devops-restapi
 Devops Assignment - RESTful API and Agile development
 
