@@ -10,6 +10,13 @@ Scenario: The server is running
     When I visit the "home page"
     Then I should not see "404 Not Found"
 
+Scenario: Create a user
+	Given the following users
+		|	name	|	times_from	|	times_to	|
+		|	john	|	14775		|	24775		|
+	When I visit '/users'
+	Then I should see 'john'
+
 Scenario: List all users
 	Given the following users
 		|	name	|	times_from	|	times_to	|
