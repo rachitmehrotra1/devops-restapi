@@ -12,9 +12,9 @@ Scenario: The server is running
 
 Scenario: List all users
 	Given the following users
-		|	name	|	times	|
-		|	john	|			|
-		|	sydney	|			|
+		|	name	|	times_from	|	times_to	|
+		|	john	|				|				|
+		|	sydney	|				|				|
 	Given the following times for user "john" with userID 1
 		|	from	|	to		|
 		|	1477523967	|	1477534958	|
@@ -26,8 +26,8 @@ Scenario: List all users
 
 Scenario: Get a user
 	Given the following users
-		|	name	|	times	|
-		|	John	|			|
+		|	name	|	times_from	|	times_to	|
+		|	John	|				|				|
 	Given the following times for user "John" with userID 1
 		|	from	|	to		|
 		|	1477523957	|	1477524957	|
@@ -38,8 +38,8 @@ Scenario: Get a user
 
 Scenario: Delete a user
 	Given the following users
-		|	name	|	times	|
-		|	John	|			|
+		|	name	|	times_from	|	times_to	|
+		|	John	|				|				|
 	Given the following times for user "John" with userID 1
 		|	from	|	to		|
 		|	1477523957	|	1477524957	|
@@ -51,9 +51,9 @@ Scenario: Delete a user
 
 Scenario: Update a user
 	Given the following users
-		|	name	|	times	|
-		|	John	|			|
-		|	Sydney	|			|
+		|	name	|	times_from	|	times_to	|
+		|	John	|				|				|
+		|	Sydney	|				|				|
 	Given the following times for user "John" with userID 1
 		|	from	|	to		|
 		|	1477523957	|	1477524957	|
@@ -63,7 +63,6 @@ Scenario: Update a user
 	Given the following times for user "Sydney" with userID 2
 		|	from	|	to		|
 		|	1478523957	|	1478524957	|
-	When I update '/users/2'
-	And I visit '/users/2'
+	When I visit '/users/2'
 	Then I should see '1478523957'
 	
