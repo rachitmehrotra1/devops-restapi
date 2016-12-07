@@ -34,13 +34,13 @@ def step_impl(context):
 @given(u'the following times for user \"{name}\" with userID {ID}')
 def step_impl(context, name, ID):
 	users = context.server.users
-	url = '/users/' + int(ID)
+	url = '/users'
 	user = users[int(ID)]
 	for row in context.table:
 		user['times'] = {'from': row['from'], 'to': row['to']}
 	print(users)
 	#users[int(ID)] = user
-	context.resp = context.app.put(url, data=json.dumps(user), content_type='application/json')
+	context.resp = context.app.put(url, data=json.dumps(users), content_type='application/json')
 	print (context.resp.data)
 
 @when(u'I visit \'{url}\'')
