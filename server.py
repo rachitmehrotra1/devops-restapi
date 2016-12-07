@@ -158,7 +158,9 @@ def set_times(id):
     if not payload.has_key('from') or not payload.has_key('to') \
         and type(payload['from']) == int and type(payload['to']) == int:
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
-    users[id]['times'].append(payload)
+    
+    # print(users['2'])
+    users[id]['times']=payload
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
     return reply(users[id], HTTP_200_OK)
