@@ -10,7 +10,7 @@ before_script: redis-cli ping
 
 script:
   - behave
-  - coverage run test_server.py
+  # - coverage run test_server.py
 
 after_success:
   - codecov
