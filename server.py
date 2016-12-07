@@ -12,7 +12,7 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
+users = {"0":{"name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
 
 @app.route('/')
 def index():
@@ -135,8 +135,8 @@ def get_user(id):
 def create_user():
     global users
     payload = json.loads(request.data)
-    id = str(payload['id'])
     users = get_from_redis('users')
+    id = len(users) + 1
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
@@ -158,7 +158,9 @@ def set_times(id):
     if not payload.has_key('from') or not payload.has_key('to') \
         and type(payload['from']) == int and type(payload['to']) == int:
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
-    users[id]['times'].append(payload)
+    
+    # print(users['2'])
+    users[id]['times']=payload
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
     return reply(users[id], HTTP_200_OK)
@@ -279,11 +281,26 @@ def reply(message, rc):
     response.status_code = rc
     return response
 
+def data_reset():
+    redis_server.flushall()
+
 # Initialize Redis
-def init_redis(hostname, port, password):
+def init_redis():
     # Connect to Redis Server
+    if 'VCAP_SERVICES' in os.environ:
+        VCAP_SERVICES = os.environ['VCAP_SERVICES']
+        services = json.loads(VCAP_SERVICES)
+        redis_creds = services['rediscloud'][0]['credentials']
+        # pull out the fields we need
+        redis_hostname = redis_creds['hostname']
+        redis_port = int(redis_creds['port'])
+        redis_password = redis_creds['password']
+    else:
+        redis_hostname = '127.0.0.1'
+        redis_port = 6379
+        redis_password = None
     global redis_server
-    redis_server = redis.Redis(host=hostname, port=port, password=password)
+    redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -297,20 +314,9 @@ def get_from_redis(s):
 
 if __name__ == "__main__":
     # Get the crdentials from the Bluemix environment
-    if 'VCAP_SERVICES' in os.environ:
-        VCAP_SERVICES = os.environ['VCAP_SERVICES']
-        services = json.loads(VCAP_SERVICES)
-        redis_creds = services['rediscloud'][0]['credentials']
-        # pull out the fields we need
-        redis_hostname = redis_creds['hostname']
-        redis_port = int(redis_creds['port'])
-        redis_password = redis_creds['password']
-    else:
-        redis_hostname = '127.0.0.1'
-        redis_port = 6379
-        redis_password = None
+    
 
-    init_redis(redis_hostname, redis_port, redis_password)
+    init_redis()
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port))
