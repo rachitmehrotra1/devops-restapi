@@ -1,5 +1,5 @@
 import os
-import redis
+import redis, fakeredis
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
@@ -67,7 +67,9 @@ def index():
             "from":1477523967,
             "to":1477524958
           }     
-        },{
+
+}
+,{
           "url":"/users/<id>",
           "method": "PUT",
           "description": "Update user with id <id>. Updates name and times",
@@ -296,7 +298,7 @@ def data_reset():
     redis_server.flushall()
 
 # Initialize Redis
-def init_redis():
+def init_redis(mock=False):
     # Connect to Redis Server
     if 'VCAP_SERVICES' in os.environ:
         VCAP_SERVICES = os.environ['VCAP_SERVICES']
@@ -311,7 +313,10 @@ def init_redis():
         redis_port = 6379
         redis_password = None
     global redis_server
-    redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
+    if mock:
+        redis_server = fakeredis.FakeStrictRedis()
+    else:
+        redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -326,7 +331,6 @@ def get_from_redis(s):
 if __name__ == "__main__":
     # Get the crdentials from the Bluemix environment
     
-
     init_redis()
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')

@@ -6,7 +6,7 @@ import json
 def step_impl(context):
 	context.app = server.app.test_client()
 	context.server = server
-	context.server.init_redis()
+	context.server.init_redis(True)
 
 @when(u'I visit the "home page"')
 def step_impl(context):

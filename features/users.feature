@@ -125,3 +125,4 @@ Scenario: Meet users with length - 2 users no intersection
 		|	145	|	160	|
 	When I visit '/meet?users=1,2&length=15'
   Then I should get an empty array
+
