@@ -41,7 +41,7 @@ def step_impl(context, name, ID):
 	i = 0
 	payloadz = []
 	for row in context.table:
-		context.app.post(url, data=json.dumps({'from': row['from'], 'to': row['to']}), content_type='application/json')
+		context.app.post(url, data=json.dumps({'from': int(row['from']), 'to': int(row['to'])}), content_type='application/json')
 	
 	#users[int(ID)] = user
 
@@ -72,3 +72,11 @@ def step_impl(context, name):
 def step_impl(context, url):
 	context.resp = context.app.post(url)
 	assert context.resp.status_code == 200
+
+@then(u'I should get the interval {_from} - {_to}')
+def step_impl(context, _from, _to):
+	print(context.resp.data)
+
+@then(u'The meeting users should be {ids_str}')
+def step_impl(context, ids_str):
+	print(context.resp.data)

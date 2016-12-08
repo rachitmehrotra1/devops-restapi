@@ -68,8 +68,17 @@ Scenario: Update a user
 
 Scenario: Meet users - 2 users basic functionality
   Given the following users
-		|	name	|	times_from	|	times_to	|
-		|	John	|				|				|
-		|	Sydney	|				|				|
+		|	name	|
+		|	John	|
+		|	Sydney|
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	10	|	30	|
+	Given the following times for user "Sydney" with userID 2
+		|	from	|	to		|
+		|	20	|	40	|
+	When I visit '/meet?users=1,2'
+  Then I should get the interval 20 - 30 
+  And The meeting users should be 1,2
   
 	
