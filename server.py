@@ -1,5 +1,5 @@
 import os
-import redis
+import redis, fakeredis
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
@@ -67,7 +67,9 @@ def index():
             "from":1477523967,
             "to":1477524958
           }     
-        },{
+
+}
+,{
           "url":"/users/<id>",
           "method": "PUT",
           "description": "Update user with id <id>. Updates name and times",
@@ -160,7 +162,7 @@ def set_times(id):
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
     
     # print(users['2'])
-    users[id]['times']=payload
+    users[id]['times'].append(payload)
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
     return reply(users[id], HTTP_200_OK)
@@ -211,6 +213,8 @@ def meet():
 
     # Return the times where most people can meet
     max_people = len(max(final_schedule, key=lambda x: len(x[2]))[2])
+    if max_people == 1:
+      return reply([], HTTP_200_OK)
     final_schedule = filter(lambda x: len(x[2])==max_people, final_schedule)
     final_schedule.sort()
     json_schedule = [{"from": x[0], "to": x[1], "people": x[2]}
@@ -269,7 +273,7 @@ def merge2(sched1, sched2):
     # second       |-------|
         final_sched.append((second[0],
                             first[1],
-                            second[2] + first[2]))
+                            sorted(second[2] + first[2])))
         final_sched.append((first[1],
                             second[1],
                             second[2]))
@@ -278,7 +282,7 @@ def merge2(sched1, sched2):
     # second     |---|
        final_sched.append((second[0],
                            second[1],
-                           second[2] + first[2]))
+                           sorted(second[2] + first[2])))
        final_sched.append((second[1],
                            first[1],
                            first[2]))
@@ -294,7 +298,7 @@ def data_reset():
     redis_server.flushall()
 
 # Initialize Redis
-def init_redis():
+def init_redis(mock=False):
     # Connect to Redis Server
     if 'VCAP_SERVICES' in os.environ:
         VCAP_SERVICES = os.environ['VCAP_SERVICES']
@@ -309,7 +313,10 @@ def init_redis():
         redis_port = 6379
         redis_password = None
     global redis_server
-    redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
+    if mock:
+        redis_server = fakeredis.FakeStrictRedis()
+    else:
+        redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -324,7 +331,6 @@ def get_from_redis(s):
 if __name__ == "__main__":
     # Get the crdentials from the Bluemix environment
     
-
     init_redis()
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')

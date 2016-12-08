@@ -6,7 +6,7 @@ import json
 def step_impl(context):
 	context.app = server.app.test_client()
 	context.server = server
-	context.server.init_redis()
+	context.server.init_redis(True)
 
 @when(u'I visit the "home page"')
 def step_impl(context):
@@ -23,7 +23,7 @@ def step_impl(context):
 	url = '/users'
 	i = str(1)
 	for row in context.table:
-		user = {'name': row['name'], 'times': {'from':row['times_from'],'to':row['times_to']}}
+		user = {'name': row['name'], 'times': []}
 		context.resp = context.app.post(url, data=json.dumps(user), content_type='application/json')
 		users[i] = user
 		#context.resp = context.app.post(url, data=json.dumps())
@@ -41,13 +41,11 @@ def step_impl(context, name, ID):
 	# print(users)
 	user = users[str(ID)]
 	i = 0
-	payloadz = {}
+	payloadz = []
 	for row in context.table:
-		payloadz = {'from': row['from'], 'to': row['to']}
+		context.app.post(url, data=json.dumps({'from': int(row['from']), 'to': int(row['to'])}), content_type='application/json')
 	
 	#users[int(ID)] = user
-
-	context.resp = context.app.post(url, data=json.dumps(payloadz), content_type='application/json')
 
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):
@@ -76,3 +74,14 @@ def step_impl(context, name):
 def step_impl(context, url):
 	context.resp = context.app.post(url)
 	assert context.resp.status_code == 200
+
+@then(u'I should get the interval {_from} - {_to} with users {users_str}')
+def step_impl(context, _from, _to, users_str):
+	res = json.loads(context.resp.data)
+	users = users_str.split(",")
+	assert {"from": int(_from), "to": int(_to), "people": users} in res
+
+@then(u'I should get an empty array')
+def step_impl(context):
+	print(context.resp.data)
+	assert context.resp.data == "[]"
