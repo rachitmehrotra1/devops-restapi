@@ -78,7 +78,50 @@ Scenario: Meet users - 2 users basic functionality
 		|	from	|	to		|
 		|	20	|	40	|
 	When I visit '/meet?users=1,2'
-  Then I should get the interval 20 - 30 
-  And The meeting users should be 1,2
+  Then I should get the interval 20 - 30 with users 1,2
   
-	
+Scenario: Meet users with length - 2 users basic functionality
+  Given the following users
+		|	name	|
+		|	John	|
+		|	Sydney|
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	10	|	30	|
+		|	100	|	135	|
+	Given the following times for user "Sydney" with userID 2
+		|	from	|	to		|
+		|	20	|	40	|
+		|	115	|	140	|
+	When I visit '/meet?users=1,2&length=15'
+  Then I should get the interval 115 - 135 with users 1,2
+
+Scenario: Meet users - 2 users no intersection
+  Given the following users
+		|	name	|
+		|	John	|
+		|	Sydney|
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	10	|	30	|
+	Given the following times for user "Sydney" with userID 2
+		|	from	|	to		|
+		|	40	|	60	|
+	When I visit '/meet?users=1,2'
+  Then I should get an empty array
+  
+Scenario: Meet users with length - 2 users no intersection
+  Given the following users
+		|	name	|
+		|	John	|
+		|	Sydney|
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	10	|	30	|
+		|	100	|	135	|
+	Given the following times for user "Sydney" with userID 2
+		|	from	|	to		|
+		|	40	|	60	|
+		|	145	|	160	|
+	When I visit '/meet?users=1,2&length=15'
+  Then I should get an empty array

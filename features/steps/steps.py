@@ -73,10 +73,13 @@ def step_impl(context, url):
 	context.resp = context.app.post(url)
 	assert context.resp.status_code == 200
 
-@then(u'I should get the interval {_from} - {_to}')
-def step_impl(context, _from, _to):
-	print(context.resp.data)
+@then(u'I should get the interval {_from} - {_to} with users {users_str}')
+def step_impl(context, _from, _to, users_str):
+	res = json.loads(context.resp.data)
+	users = users_str.split(",")
+	assert {"from": int(_from), "to": int(_to), "people": users} in res
 
-@then(u'The meeting users should be {ids_str}')
-def step_impl(context, ids_str):
+@then(u'I should get an empty array')
+def step_impl(context):
 	print(context.resp.data)
+	assert context.resp.data == "[]"

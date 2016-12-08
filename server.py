@@ -211,6 +211,8 @@ def meet():
 
     # Return the times where most people can meet
     max_people = len(max(final_schedule, key=lambda x: len(x[2]))[2])
+    if max_people == 1:
+      return reply([], HTTP_200_OK)
     final_schedule = filter(lambda x: len(x[2])==max_people, final_schedule)
     final_schedule.sort()
     json_schedule = [{"from": x[0], "to": x[1], "people": x[2]}
@@ -269,7 +271,7 @@ def merge2(sched1, sched2):
     # second       |-------|
         final_sched.append((second[0],
                             first[1],
-                            second[2] + first[2]))
+                            sorted(second[2] + first[2])))
         final_sched.append((first[1],
                             second[1],
                             second[2]))
@@ -278,7 +280,7 @@ def merge2(sched1, sched2):
     # second     |---|
        final_sched.append((second[0],
                            second[1],
-                           second[2] + first[2]))
+                           sorted(second[2] + first[2])))
        final_sched.append((second[1],
                            first[1],
                            first[2]))
