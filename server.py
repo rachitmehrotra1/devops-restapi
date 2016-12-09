@@ -183,7 +183,7 @@ def remove_times(id):
             and users[id]['times'][i]['to'] == payload['to']:
             ndx = i
             break
-    if ndx:
+    if ndx is not None:
         del users[id]['times'][ndx]
         json_users = json.dumps(users)
         redis_server.set('users', json_users)
