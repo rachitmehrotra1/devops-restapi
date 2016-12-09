@@ -28,8 +28,6 @@ def step_impl(context):
 		users[i] = user
 		#context.resp = context.app.post(url, data=json.dumps())
 		i = str(int(i) + 1)
-	#print (context.redis)
-	#context.app.put(users)
 	# context.resp = context.app.post(url, data=json.dumps(users), content_type='application/json')
 	context.server.users = users
 
@@ -37,15 +35,12 @@ def step_impl(context):
 def step_impl(context, name, ID):
 	users = context.server.users
 	url = '/users/'+str(ID)+'/times'
-	# print("Daaaaa")
-	# print(users)
 	user = users[str(ID)]
 	i = 0
 	payloadz = []
 	for row in context.table:
 		context.app.post(url, data=json.dumps({'from': int(row['from']), 'to': int(row['to'])}), content_type='application/json')
 	
-	#users[int(ID)] = user
 
 @when(u'I visit \'{url}\'')
 def step_impl(context, url):
@@ -66,13 +61,21 @@ def step_impl(context, url):
 	context.resp = context.app.delete(url)
 	assert context.resp.status_code == 204
 
+@when(u'I delete times \'{_from}\' and \'{_to}\' from \'{url}\'')
+def step_impl(context, _from, _to, url):
+	context.resp = context.app.put(url, data=json.dumps({'from': int(_from), 'to': int(_to)}), content_type='application/json')
+	print (context.resp.data)
+	assert context.resp.status_code == 200
+
 @then(u'I should not see \'{name}\'')
 def step_impl(context, name):
 	assert name not in context.resp.data
 
 @when(u'I update \'{url}\'')
 def step_impl(context, url):
-	context.resp = context.app.post(url)
+	context.resp = context.app.put(url)
+	# print (context.resp)
+	# assert '1477523988' in context.resp.data
 	assert context.resp.status_code == 200
 
 @then(u'I should get the interval {_from} - {_to} with users {users_str}')
