@@ -1,5 +1,5 @@
 import os
-import redis
+import redis, fakeredis
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
@@ -12,7 +12,7 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
+users = {"0":{"name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524957}]}}
 
 @app.route('/')
 def index():
@@ -166,8 +166,8 @@ def get_user(id):
 def create_user():
     global users
     payload = json.loads(request.data)
-    id = str(payload['id'])
     users = get_from_redis('users')
+    id = len(users) + 1
     if users.has_key(id):
         message = { 'error' : 'User %s already exists' % id }
         rc = HTTP_409_CONFLICT
@@ -189,6 +189,8 @@ def set_times(id):
     if not payload.has_key('from') or not payload.has_key('to') \
         and type(payload['from']) == int and type(payload['to']) == int:
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
+    
+    # print(users['2'])
     users[id]['times'].append(payload)
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
@@ -229,8 +231,19 @@ def meet():
                                         for x in users[_id]['times']],
                             ids)
     final_schedule = reduce(merge, single_schedules)
+
+    # Keep only the intervals greater than the duration
+    duration = request.args.get('length') or 0
+    final_schedule = filter(lambda x: x[1]-x[0]>= int(duration), final_schedule)
+    
+    # Check if there are results
+    if not final_schedule:
+      return reply([], HTTP_200_OK)
+
     # Return the times where most people can meet
     max_people = len(max(final_schedule, key=lambda x: len(x[2]))[2])
+    if max_people == 1:
+      return reply([], HTTP_200_OK)
     final_schedule = filter(lambda x: len(x[2])==max_people, final_schedule)
     final_schedule.sort()
     json_schedule = [{"from": x[0], "to": x[1], "people": x[2]}
@@ -289,7 +302,7 @@ def merge2(sched1, sched2):
     # second       |-------|
         final_sched.append((second[0],
                             first[1],
-                            second[2] + first[2]))
+                            sorted(second[2] + first[2])))
         final_sched.append((first[1],
                             second[1],
                             second[2]))
@@ -298,7 +311,7 @@ def merge2(sched1, sched2):
     # second     |---|
        final_sched.append((second[0],
                            second[1],
-                           second[2] + first[2]))
+                           sorted(second[2] + first[2])))
        final_sched.append((second[1],
                            first[1],
                            first[2]))
@@ -310,11 +323,29 @@ def reply(message, rc):
     response.status_code = rc
     return response
 
+def data_reset():
+    redis_server.flushall()
+
 # Initialize Redis
-def init_redis(hostname, port, password):
+def init_redis(mock=False):
     # Connect to Redis Server
+    if 'VCAP_SERVICES' in os.environ:
+        VCAP_SERVICES = os.environ['VCAP_SERVICES']
+        services = json.loads(VCAP_SERVICES)
+        redis_creds = services['rediscloud'][0]['credentials']
+        # pull out the fields we need
+        redis_hostname = redis_creds['hostname']
+        redis_port = int(redis_creds['port'])
+        redis_password = redis_creds['password']
+    else:
+        redis_hostname = '127.0.0.1'
+        redis_port = 6379
+        redis_password = None
     global redis_server
-    redis_server = redis.Redis(host=hostname, port=port, password=password)
+    if mock:
+        redis_server = fakeredis.FakeStrictRedis()
+    else:
+        redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -328,20 +359,8 @@ def get_from_redis(s):
 
 if __name__ == "__main__":
     # Get the crdentials from the Bluemix environment
-    if 'VCAP_SERVICES' in os.environ:
-        VCAP_SERVICES = os.environ['VCAP_SERVICES']
-        services = json.loads(VCAP_SERVICES)
-        redis_creds = services['rediscloud'][0]['credentials']
-        # pull out the fields we need
-        redis_hostname = redis_creds['hostname']
-        redis_port = int(redis_creds['port'])
-        redis_password = redis_creds['password']
-    else:
-        redis_hostname = '127.0.0.1'
-        redis_port = 6379
-        redis_password = None
-
-    init_redis(redis_hostname, redis_port, redis_password)
+    
+    init_redis()
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port))
