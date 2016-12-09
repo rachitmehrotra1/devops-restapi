@@ -16,77 +16,108 @@ users = {"0":{"id": 0, "name": "Carlos Guzman", "times":[{"from":1477523957, "to
 
 @app.route('/')
 def index():
-    docs = {
-      "name": "Meeting REST API",
-      "version": "1.0",
-      "domain": "http://devchronops.mybluemix.net",
-      "url": [
-        {
-          "url":"/users",
-          "method": "GET",
-          "description": "List all users"
-        },{
-          "url":"/users/<id>",
-          "method": "GET",
-          "description": "Get user with id <id>"
-        },{
-          "url":"/meet?users=<id1>,<id2>",
-          "method": "GET",
-          "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
-        },{
-          "url":"/users",
-          "method": "POST",
-          "description": "Create a user",
-          "sample_body": {
-            "id": 0,
-            "name": "John Rofrano",
-            "times": [
-              {
-                "from":1477523957,
-                "to":1477524957
-              }
-            ]
-          }
-        },{
-          "url":"/users/<id>/times",
-          "method": "POST",
-          "description": "Add a time interval for user with id <id>",
-          "sample_body": {
-            "from":1477523957,
-            "to":1477524957
-          }
-        },{
-          "url":"/users/<id>",
-          "method": "DELETE",
-          "description": "Delete a user"
-        },{
-          "url":"/users/<id>/times",
-          "method": "PUT",
-          "description": "Delete time interval specified for user with id <id>",
-          "sample_body": {
-            "from":1477523967,
-            "to":1477524958
-          }     
-        },{
-          "url":"/users/<id>",
-          "method": "PUT",
-          "description": "Update user with id <id>. Updates name and times",
-          "sample_body": {
-            "name": "JR",
-            "times": [
-              {
-                "from":1477523967,
-                "to":1477524958
-              },{
-                "from":14772396000,
-                "to":  147752490000
-              }
-            ]
-          }     
-        }
-      ]
-    }
-    return reply(docs, HTTP_200_OK)
+    # docs = {
+    #   "name": "Meeting REST API",
+    #   "version": "1.0",
+    #   "domain": "http://devchronops.mybluemix.net",
+    #   "url": [
+    #     {
+    #       "url":"/users",
+    #       "method": "GET",
+    #       "description": "List all users"
+    #     },{
+    #       "url":"/users/<id>",
+    #       "method": "GET",
+    #       "description": "Get user with id <id>"
+    #     },{
+    #       "url":"/meet?users=<id1>,<id2>",
+    #       "method": "GET",
+    #       "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
+    #     },{
+    #       "url":"/users",
+    #       "method": "POST",
+    #       "description": "Create a user",
+    #       "sample_body": {
+    #         "id": 0,
+    #         "name": "John Rofrano",
+    #         "times": [
+    #           {
+    #             "from":1477523957,
+    #             "to":1477524957
+    #           }
+    #         ]
+    #       }
+    #     },{
+    #       "url":"/users/<id>/times",
+    #       "method": "POST",
+    #       "description": "Add a time interval for user with id <id>",
+    #       "sample_body": {
+    #         "from":1477523957,
+    #         "to":1477524957
+    #       }
+    #     },{
+    #       "url":"/users/<id>",
+    #       "method": "DELETE",
+    #       "description": "Delete a user"
+    #     },{
+    #       "url":"/users/<id>/times",
+    #       "method": "PUT",
+    #       "description": "Delete time interval specified for user with id <id>",
+    #       "sample_body": {
+    #         "from":1477523967,
+    #         "to":1477524958
+    #       }     
+    #     },{
+    #       "url":"/users/<id>",
+    #       "method": "PUT",
+    #       "description": "Update user with id <id>. Updates name and times",
+    #       "sample_body": {
+    #         "name": "JR",
+    #         "times": [
+    #           {
+    #             "from":1477523967,
+    #             "to":1477524958
+    #           },{
+    #             "from":14772396000,
+    #             "to":  147752490000
+    #           }
+    #         ]
+    #       }     
+    #     }
+    #   ]
+    # }
+    # return reply(docs, HTTP_200_OK)
+    """Sends the Swagger main HTML page to the client.
+        Returns:
+            response (Response): HTML content of static/swagger/index.html
+    """
+    return app.send_static_file('swagger/index.html')   
+
+@app.route('/lib/<path:path>')
+def send_lib(path):
+
+    return app.send_static_file('swagger/lib/' + path)
+
+@app.route('/specification/<path:path>')
+def send_specification(path):
+
+    return app.send_static_file('swagger/specification/' + path)
+
+@app.route('/images/<path:path>')
+def send_images(path):
+
+    return app.send_static_file('swagger/images/' + path)
+
+@app.route('/css/<path:path>')
+def send_css(path):
+
+    return app.send_static_file('swagger/css/' + path)
+
+@app.route('/fonts/<path:path>')
+def send_fonts(path):
+
+    return app.send_static_file('swagger/fonts/' + path)
+
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
