@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/rachitmehrotra1/devops-restapi.svg?branch=master)](https://travis-ci.org/rachitmehrotra1/devops-restapi)
-[![codecov](https://codecov.io/gh/rachitmehrotra1/devops-restapi/branch/master/graph/badge.svg)](https://codecov.io/gh/rachitmehrotra1/devops-restapi)
-
 # devops-restapi
 Devops Assignment - RESTful API and Agile development
+
+[![Build Status](https://travis-ci.org/rachitmehrotra1/devops-restapi.svg?branch=master)](https://travis-ci.org/rachitmehrotra1/devops-restapi)
+[![codecov](https://codecov.io/gh/rachitmehrotra1/devops-restapi/branch/master/graph/badge.svg)](https://codecov.io/gh/rachitmehrotra1/devops-restapi)
 
 This project contains a minimalistic service that lets people (“users”) input in their available times. And then use the “meet” function to find common time that set of users are available to get a meeting time.
 
