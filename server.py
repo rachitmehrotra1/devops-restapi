@@ -227,6 +227,17 @@ def remove_times(id):
     else:
         return reply({'error' : 'Body must already be within the timeslots'}, HTTP_400_BAD_REQUEST)
 
+@app.route('/bot', methods=['GET'])
+def bot():
+    command = request.args.get('command').split('-')
+
+    if 'list' in command:
+        result = "I see you want a list of users"
+    elif 'meet' in command:
+        result = "Who do you want to meet with?"
+
+    return reply({'message': result}, HTTP_200_OK)
+
 @app.route('/meet', methods=['GET'])
 def meet():
     global users
