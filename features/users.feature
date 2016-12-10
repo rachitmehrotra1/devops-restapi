@@ -73,6 +73,36 @@ Scenario: Update a user
 	When I visit '/users/2'
 	Then I should see '1478523957'
 
+Scenario: Update a user's times
+	Given the following users
+		|	name	|	times_from	|	times_to	|
+		|	John	|				|				|
+		|	Sydney	|				|				|
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	1477523957	|	1477524957	|
+	When I visit '/users/1'
+	Then I should see '1477523957'
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	1477523988	|	1477524999	|
+	When I visit '/users/1'
+	Then I should see '1477523988'
+
+Scenario: Remove a user's time
+	Given the following users
+		|	name	|	times_from	|	times_to	|
+		|	John	|				|				|
+		|	Sydney	|				|				|
+	Given the following times for user "John" with userID 1
+		|	from	|	to		|
+		|	1477523957	|	1477524957	|
+	When I visit '/users/1'
+	Then I should see '1477523957'
+	When I delete times '1477523957' and '1477524957' from '/users/1/times'
+	Then I should not see '1477523957'
+
+
 Scenario: Meet users - 2 users basic functionality
   Given the following users
 		|	name	|
