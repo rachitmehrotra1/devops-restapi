@@ -1,5 +1,5 @@
 import os
-import redis
+import redis, fakeredis
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
@@ -16,77 +16,108 @@ users = {"0":{"name": "Carlos Guzman", "times":[{"from":1477523957, "to":1477524
 
 @app.route('/')
 def index():
-    docs = {
-      "name": "Meeting REST API",
-      "version": "1.0",
-      "domain": "http://devchronops.mybluemix.net",
-      "url": [
-        {
-          "url":"/users",
-          "method": "GET",
-          "description": "List all users"
-        },{
-          "url":"/users/<id>",
-          "method": "GET",
-          "description": "Get user with id <id>"
-        },{
-          "url":"/meet?users=<id1>,<id2>",
-          "method": "GET",
-          "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
-        },{
-          "url":"/users",
-          "method": "POST",
-          "description": "Create a user",
-          "sample_body": {
-            "id": 0,
-            "name": "John Rofrano",
-            "times": [
-              {
-                "from":1477523957,
-                "to":1477524957
-              }
-            ]
-          }
-        },{
-          "url":"/users/<id>/times",
-          "method": "POST",
-          "description": "Add a time interval for user with id <id>",
-          "sample_body": {
-            "from":1477523957,
-            "to":1477524957
-          }
-        },{
-          "url":"/users/<id>",
-          "method": "DELETE",
-          "description": "Delete a user"
-        },{
-          "url":"/users/<id>/times",
-          "method": "PUT",
-          "description": "Delete time interval specified for user with id <id>",
-          "sample_body": {
-            "from":1477523967,
-            "to":1477524958
-          }     
-        },{
-          "url":"/users/<id>",
-          "method": "PUT",
-          "description": "Update user with id <id>. Updates name and times",
-          "sample_body": {
-            "name": "JR",
-            "times": [
-              {
-                "from":1477523967,
-                "to":1477524958
-              },{
-                "from":14772396000,
-                "to":  147752490000
-              }
-            ]
-          }     
-        }
-      ]
-    }
-    return reply(docs, HTTP_200_OK)
+    # docs = {
+    #   "name": "Meeting REST API",
+    #   "version": "1.0",
+    #   "domain": "http://devchronops.mybluemix.net",
+    #   "url": [
+    #     {
+    #       "url":"/users",
+    #       "method": "GET",
+    #       "description": "List all users"
+    #     },{
+    #       "url":"/users/<id>",
+    #       "method": "GET",
+    #       "description": "Get user with id <id>"
+    #     },{
+    #       "url":"/meet?users=<id1>,<id2>",
+    #       "method": "GET",
+    #       "description": "Get possible meeting times for users <id1>, <id2>.... specified by comma-separated values"
+    #     },{
+    #       "url":"/users",
+    #       "method": "POST",
+    #       "description": "Create a user",
+    #       "sample_body": {
+    #         "id": 0,
+    #         "name": "John Rofrano",
+    #         "times": [
+    #           {
+    #             "from":1477523957,
+    #             "to":1477524957
+    #           }
+    #         ]
+    #       }
+    #     },{
+    #       "url":"/users/<id>/times",
+    #       "method": "POST",
+    #       "description": "Add a time interval for user with id <id>",
+    #       "sample_body": {
+    #         "from":1477523957,
+    #         "to":1477524957
+    #       }
+    #     },{
+    #       "url":"/users/<id>",
+    #       "method": "DELETE",
+    #       "description": "Delete a user"
+    #     },{
+    #       "url":"/users/<id>/times",
+    #       "method": "PUT",
+    #       "description": "Delete time interval specified for user with id <id>",
+    #       "sample_body": {
+    #         "from":1477523967,
+    #         "to":1477524958
+    #       }     
+    #     },{
+    #       "url":"/users/<id>",
+    #       "method": "PUT",
+    #       "description": "Update user with id <id>. Updates name and times",
+    #       "sample_body": {
+    #         "name": "JR",
+    #         "times": [
+    #           {
+    #             "from":1477523967,
+    #             "to":1477524958
+    #           },{
+    #             "from":14772396000,
+    #             "to":  147752490000
+    #           }
+    #         ]
+    #       }     
+    #     }
+    #   ]
+    # }
+    # return reply(docs, HTTP_200_OK)
+    """Sends the Swagger main HTML page to the client.
+        Returns:
+            response (Response): HTML content of static/swagger/index.html
+    """
+    return app.send_static_file('swagger/index.html')   
+
+@app.route('/lib/<path:path>')
+def send_lib(path):
+
+    return app.send_static_file('swagger/lib/' + path)
+
+@app.route('/specification/<path:path>')
+def send_specification(path):
+
+    return app.send_static_file('swagger/specification/' + path)
+
+@app.route('/images/<path:path>')
+def send_images(path):
+
+    return app.send_static_file('swagger/images/' + path)
+
+@app.route('/css/<path:path>')
+def send_css(path):
+
+    return app.send_static_file('swagger/css/' + path)
+
+@app.route('/fonts/<path:path>')
+def send_fonts(path):
+
+    return app.send_static_file('swagger/fonts/' + path)
+
 
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_users(id):
@@ -158,6 +189,8 @@ def set_times(id):
     if not payload.has_key('from') or not payload.has_key('to') \
         and type(payload['from']) == int and type(payload['to']) == int:
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
+    
+    # print(users['2'])
     users[id]['times'].append(payload)
     json_users=json.dumps(users)
     redis_server.set('users',json_users)
@@ -198,8 +231,19 @@ def meet():
                                         for x in users[_id]['times']],
                             ids)
     final_schedule = reduce(merge, single_schedules)
+
+    # Keep only the intervals greater than the duration
+    duration = request.args.get('length') or 0
+    final_schedule = filter(lambda x: x[1]-x[0]>= int(duration), final_schedule)
+    
+    # Check if there are results
+    if not final_schedule:
+      return reply([], HTTP_200_OK)
+
     # Return the times where most people can meet
     max_people = len(max(final_schedule, key=lambda x: len(x[2]))[2])
+    if max_people == 1:
+      return reply([], HTTP_200_OK)
     final_schedule = filter(lambda x: len(x[2])==max_people, final_schedule)
     final_schedule.sort()
     json_schedule = [{"from": x[0], "to": x[1], "people": x[2]}
@@ -258,7 +302,7 @@ def merge2(sched1, sched2):
     # second       |-------|
         final_sched.append((second[0],
                             first[1],
-                            second[2] + first[2]))
+                            sorted(second[2] + first[2])))
         final_sched.append((first[1],
                             second[1],
                             second[2]))
@@ -267,7 +311,7 @@ def merge2(sched1, sched2):
     # second     |---|
        final_sched.append((second[0],
                            second[1],
-                           second[2] + first[2]))
+                           sorted(second[2] + first[2])))
        final_sched.append((second[1],
                            first[1],
                            first[2]))
@@ -283,7 +327,7 @@ def data_reset():
     redis_server.flushall()
 
 # Initialize Redis
-def init_redis():
+def init_redis(mock=False):
     # Connect to Redis Server
     if 'VCAP_SERVICES' in os.environ:
         VCAP_SERVICES = os.environ['VCAP_SERVICES']
@@ -298,7 +342,12 @@ def init_redis():
         redis_port = 6379
         redis_password = None
     global redis_server
-    redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
+
+    if mock:
+        redis_server = fakeredis.FakeStrictRedis()
+    else:
+        redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
+
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
