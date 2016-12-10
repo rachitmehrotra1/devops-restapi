@@ -21,7 +21,7 @@ class TestServer(unittest.TestCase):
     def setUp(self):
         server.app.debug = True
         self.app = server.app.test_client()
-        server.init_redis()
+        server.init_redis(True)
         server.data_reset()
         #server.data_load({ "id": 0, "name": "John Rofrano", "times": [ { "from":1477523957, "to":1477524957 } ] })
  
