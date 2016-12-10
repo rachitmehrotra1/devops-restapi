@@ -352,6 +352,7 @@ def init_redis(mock=False):
 
     if mock:
         redis_server = fakeredis.FakeStrictRedis()
+        redis_server.client_list = lambda: "I'm fake"
     else:
         redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
 

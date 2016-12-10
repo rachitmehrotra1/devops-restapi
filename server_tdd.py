@@ -40,10 +40,14 @@ class TestServer(unittest.TestCase):
         os.environ["VCAP_SERVICES"] = json.dumps(services)
         self.assertTrue(server.init_redis(True) == None)
         self.assertTrue(server.init_redis(False) == None)
-        services['rediscloud'][0]['credentials']['hostname'] = "31.41.59.26"
+        services['rediscloud'][0]['credentials']['hostname'] = "0.0.0.1"
         services['rediscloud'][0]['credentials']['password'] = "forty-two"
         os.environ["VCAP_SERVICES"] = json.dumps(services)
-        self.assertRaises(SystemExit, server.init_redis(False))
+
+        with self.assertRaises(SystemExit) as cm:
+            server.init_redis(False)
+        
+        self.assertEqual(cm.exception.code, 1)
 
     def test_index(self):
         resp = self.app.get('/')
