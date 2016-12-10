@@ -168,15 +168,22 @@ def create_user():
     payload = json.loads(request.data)
     users = get_from_redis('users')
     id = len(users) + 1
-    if users.has_key(id):
-        message = { 'error' : 'User %s already exists' % id }
-        rc = HTTP_409_CONFLICT
-    else:
-        users[id] = payload
-        message = users[id]
-        rc = HTTP_201_CREATED
-        json_users=json.dumps(users)
-        redis_server.set('users',json_users)
+    # Currently this conditional is useless, because we don't have a primary key in our data
+    # We can add email in future versions
+    #if users.has_key(id):
+    #    message = { 'error' : 'User %s already exists' % id }
+    #    rc = HTTP_409_CONFLICT
+    #else:
+    #    users[id] = payload
+    #    message = users[id]
+    #    rc = HTTP_201_CREATED
+    #    json_users=json.dumps(users)
+    #    redis_server.set('users',json_users)
+    users[id] = payload
+    message = users[id]
+    rc = HTTP_201_CREATED
+    json_users=json.dumps(users)
+    redis_server.set('users',json_users)
     return reply(message, rc)
 
 @app.route('/users/<id>/times', methods=['POST'])
@@ -204,7 +211,7 @@ def remove_times(id):
     if not users.has_key(id):
         return reply({'error' : 'User %s doesn\'t exist' % id}, HTTP_400_BAD_REQUEST)
     if not payload.has_key('from') or not payload.has_key('to') \
-        and type(payload['from']) == int and type(payload['to']) == int:
+        or type(payload['from']) != int or type(payload['to']) != int:
         return reply({'error' : 'Body must be an object with "from" and "to" being integer fields'}, HTTP_400_BAD_REQUEST)
     ndx = None
     for i in range(len(users[id]['times'])):
@@ -345,10 +352,13 @@ def init_redis(mock=False):
 
     if mock:
         redis_server = fakeredis.FakeStrictRedis()
+        redis_server.client_list = lambda: "I'm fake"
     else:
         redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
 
-    if not redis_server:
+    try:
+        redis_server.ping()
+    except redis.exceptions.ConnectionError:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
 

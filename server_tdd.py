@@ -25,6 +25,30 @@ class TestServer(unittest.TestCase):
         server.data_reset()
         #server.data_load({ "id": 0, "name": "John Rofrano", "times": [ { "from":1477523957, "to":1477524957 } ] })
  
+    def test_prod_env(self):
+        import os
+        # Check production environment works (obviously no credentials here, just check whether it'd be set properly)
+        services = {
+          "rediscloud":[{
+            "credentials":{
+              "hostname": "127.0.0.1",
+              "port": 6379,
+              "password": None
+            }
+          }]
+        }
+        os.environ["VCAP_SERVICES"] = json.dumps(services)
+        self.assertTrue(server.init_redis(True) == None)
+        self.assertTrue(server.init_redis(False) == None)
+        services['rediscloud'][0]['credentials']['hostname'] = "0.0.0.1"
+        services['rediscloud'][0]['credentials']['password'] = "forty-two"
+        os.environ["VCAP_SERVICES"] = json.dumps(services)
+
+        with self.assertRaises(SystemExit) as cm:
+            server.init_redis(False)
+        
+        self.assertEqual(cm.exception.code, 1)
+
     def test_index(self):
         resp = self.app.get('/')
         self.assertTrue ('Swagger UI' in resp.data)
@@ -52,6 +76,27 @@ class TestServer(unittest.TestCase):
         resp = self.app.post('/users', data=data, content_type='application/json')
         #self.assertTrue( resp.status_code == HTTP_409_CONFLICT )
         
+    def test_create_existing_user(self):
+        # save the current number of users for later comparison
+        users_count = self.get_users_count()
+        # add a new user
+        new_user = { "name": "JR", "times": [ { "from":1477523957, "to":1477524957 } ] }
+        data = json.dumps(new_user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'JR')
+        # check that count has gone up and includes JR
+        resp = self.app.get('/users')
+        #print 'resp_data(2): ' + resp.data
+        data = json.loads(resp.data)
+        self.assertTrue( resp.status_code == HTTP_200_OK )
+        self.assertTrue( len(data) == users_count + 1 )
+        #check that if a user already exists an error is given
+        newer_user = { "name": "JR", "times": [ { "from":1477523957, "to":1477524957 } ] }
+        data = json.dumps(newer_user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        #self.assertTrue( resp.status_code == HTTP_409_CONFLICT )
     def test_get_users_list(self):
         # add a new user
         new_user = { "name": "JR", "times": [ { "from":1477523957, "to":1477524957 } ] }
@@ -157,7 +202,6 @@ class TestServer(unittest.TestCase):
         resp = self.app.post('/users/1/times', data=data, content_type='application/json')
         self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )
         
-        
     def test_remove_times(self):
         # add a new user
         new_user = { "name": "JR", "times": [ { "from":1477523957, "to":1477524957 } ] }
@@ -192,6 +236,25 @@ class TestServer(unittest.TestCase):
         resp = self.app.put('/users/1331/times', data=data, content_type='application/json')
         self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )        
         
+    def test_remove_times_invalid_time(self):
+        # add a new user
+        new_user = { "name": "JR", "times": [ { "from":1477523957, "to":1477524957 } ] }
+        data = json.dumps(new_user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'JR')
+        # test setting a new time for the user
+        time = { "from":1477525957, "to":1477526957 }
+        data = json.dumps(time)
+        resp = self.app.post('/users/1/times', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_200_OK )
+        # test removing the wrong time range for the user
+        time = { "from":"1477525957", "to":"1477526957" }
+        data = json.dumps(time)
+        resp = self.app.put('/users/1/times', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )
+        
     def test_meet_function(self):
         # add a new user
         user = { "name": "JR", "times": [ { "from":1477523957, "to":1477524957 } ] }
@@ -213,6 +276,79 @@ class TestServer(unittest.TestCase):
         # test to see if user was not valid
         resp = self.app.get('/meet', query_string='users=1,1111')
         self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )
+        
+    def test_meet_function_empty_schedules(self):
+        # add a new user
+        user = { "name": "JR", "times": [] }
+        data = json.dumps(user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'JR')
+        # add a second user
+        new_user = { "name": "Student", "times": [] }
+        data = json.dumps(new_user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'Student')
+        # test to see if users can meet - they should be able to
+        resp = self.app.get('/meet', query_string='users=1,2')
+        self.assertTrue( resp.status_code == HTTP_200_OK )
+        self.assertTrue( json.loads(resp.data) == [])
+
+
+    def test_meet_function_no_intersection(self):
+        # add a new user
+        user = { "name": "JR", "times": [{"from":10, "to":20}] }
+        data = json.dumps(user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'JR')
+        # add a second user
+        new_user = { "name": "Student", "times": [{"from":40, "to":50}] }
+        data = json.dumps(new_user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'Student')
+        # test to see if users can meet - they should be able to
+        resp = self.app.get('/meet', query_string='users=1,2')
+        self.assertTrue( resp.status_code == HTTP_200_OK )
+        self.assertTrue( json.loads(resp.data) == [])
+
+    def test_merge_first_no_intersect_at_beginning(self):
+        result = server.merge([(30, 40, [2])], \
+          [(10, 20, [1]),(25, 35, [1])])
+        self.assertTrue(result == [ \
+          (10,20,[1]), \
+          (25,30,[1]), \
+          (30,35,[1,2]), \
+          (35,40,[2]), \
+        ])
+
+    def test_merge_first_starts_after_second(self):
+        result = server.merge([ \
+          (101, 201, [1]), \
+          (251, 351, [1]), \
+          (451, 551, [1]) \
+        ], \
+          [(30, 40, [2])])
+        self.assertTrue(result == [ \
+          (30, 40, [2]), \
+          (101, 201, [1]), \
+          (251, 351, [1]), \
+          (451, 551, [1]) \
+        ])
+
+    def test_merge2_superset(self):
+        result = server.merge2((10,20,[1]),(13,17,[2]))
+        self.assertTrue(result == [ \
+          (10,13,[1]), \
+          (13,17,[1,2]), \
+          (17,20,[1]) \
+        ])
 
 ######################################################################
 # Swagger UI test functions
@@ -258,4 +394,4 @@ class TestServer(unittest.TestCase):
 #   M A I N
 ######################################################################
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(exit=False)
