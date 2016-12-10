@@ -232,7 +232,12 @@ def bot():
     command = request.args.get('command').split('-')
 
     if 'list' in command:
-        result = "I see you want a list of users"
+        result = "I see you want a list of users. I'll give you all of the users. Paging will be implemented in the future. Here we go: "
+        users = get_from_redis('users')
+        usernames = [x['name'] for x in users.values()]
+        result += ", ".join(usernames[:-1])
+        result += " and " + usernames[-1]
+        
     elif 'meet' in command:
         result = "Who do you want to meet with?"
 
