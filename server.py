@@ -355,7 +355,9 @@ def init_redis(mock=False):
     else:
         redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
 
-    if not redis_server:
+    try:
+        redis_server.ping()
+    except redis.exceptions.ConnectionError:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
 
