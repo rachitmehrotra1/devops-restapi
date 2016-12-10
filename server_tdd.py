@@ -213,6 +213,34 @@ class TestServer(unittest.TestCase):
         # test to see if user was not valid
         resp = self.app.get('/meet', query_string='users=1,1111')
         self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )
+
+######################################################################
+# Swagger UI test functions
+######################################################################
+
+    def test_index(self):
+        response = self.app.get("/")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+    
+    def test_send_lib(self):
+        response = self.app.get("/lib/marked.js")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+    
+    def test_send_spec(self):
+        response = self.app.get("/specification/meet.js")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+    
+    def test_send_img(self):
+        response = self.app.get("/images/logo_small.png")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+    
+    def test_send_css(self):
+        response = self.app.get("/css/style.css")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+    
+    def test_send_fonts(self):
+        response = self.app.get("/fonts/DroidSans.ttf")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
         
 ######################################################################
 # Utility functions
