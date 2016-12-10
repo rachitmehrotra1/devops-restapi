@@ -64,19 +64,11 @@ def step_impl(context, url):
 @when(u'I delete times \'{_from}\' and \'{_to}\' from \'{url}\'')
 def step_impl(context, _from, _to, url):
 	context.resp = context.app.put(url, data=json.dumps({'from': int(_from), 'to': int(_to)}), content_type='application/json')
-	print (context.resp.data)
 	assert context.resp.status_code == 200
 
 @then(u'I should not see \'{name}\'')
 def step_impl(context, name):
 	assert name not in context.resp.data
-
-@when(u'I update \'{url}\'')
-def step_impl(context, url):
-	context.resp = context.app.put(url)
-	# print (context.resp)
-	# assert '1477523988' in context.resp.data
-	assert context.resp.status_code == 200
 
 @then(u'I should get the interval {_from} - {_to} with users {users_str}')
 def step_impl(context, _from, _to, users_str):
