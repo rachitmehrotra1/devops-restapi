@@ -27,7 +27,7 @@ class TestServer(unittest.TestCase):
  
     def test_index(self):
         resp = self.app.get('/')
-        self.assertTrue ('Meeting REST API' in resp.data)
+        self.assertTrue ('Swagger UI' in resp.data)
         self.assertTrue( resp.status_code == HTTP_200_OK )
         
     def test_create_user(self):
