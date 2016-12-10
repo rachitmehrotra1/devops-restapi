@@ -342,10 +342,12 @@ def init_redis(mock=False):
         redis_port = 6379
         redis_password = None
     global redis_server
+
     if mock:
         redis_server = fakeredis.FakeStrictRedis()
     else:
         redis_server = redis.Redis(host=redis_hostname, port=redis_port, password=redis_password)
+
     if not redis_server:
         print('*** FATAL ERROR: Could not conect to the Redis Service')
         exit(1)
@@ -360,6 +362,7 @@ def get_from_redis(s):
 if __name__ == "__main__":
     # Get the crdentials from the Bluemix environment
     
+
     init_redis()
     # Get bindings from the environment
     port = os.getenv('PORT', '5000')
