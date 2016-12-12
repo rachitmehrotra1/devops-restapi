@@ -351,6 +351,93 @@ class TestServer(unittest.TestCase):
         ])
 
 ######################################################################
+# Bot
+######################################################################
+
+    def test_bot_list_endpoint(self):
+        response = self.app.get("/bot", query_string="command=list-users")
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        try:
+            data = json.loads(response.data)
+        except ValueError, e:
+            self.fail("Response is not json")
+
+    def test_bot_list(self):
+        self.add_default_users()
+        
+        response = self.app.get("/bot", query_string="command=list-users")
+        data = json.loads(response.data)
+        self.assertIn('message', data.keys())
+        msg = data['message'].lower()
+
+        self.assertIn('carlos', msg)
+        self.assertIn('sydney', msg)
+        self.assertIn('john', msg)
+        self.assertIn('all', msg)
+
+    def test_bot_meeting_endpoint(self):
+        self.add_default_users()
+        response = self.app.get("/bot", query_string="command=meeting-john-sydney-carlos")
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        try:
+            data = json.loads(response.data)
+        except ValueError, e:
+            self.fail("Response is not json")
+    
+    def test_bot_meeting(self):
+        self.add_default_users()
+        
+        response = self.app.get("/bot", query_string="command=meeting-john-sydney-carlos")
+        data = json.loads(response.data)
+        self.assertIn('message', data.keys())
+        msg = data['message'].lower()
+
+        self.assertIn('carlos', msg)
+        self.assertIn('sydney', msg)
+        self.assertIn('john', msg)
+        self.assertIn('december', msg)
+        self.assertIn('14', msg)
+        self.assertIn('6', msg)
+        self.assertIn('30', msg)
+
+    def test_bot_meeting_demo(self):
+        self.add_default_users()
+        
+        response = self.app.get("/bot", query_string="command=meeting-john-sydney-carlos&demo=yes")
+        data = json.loads(response.data)
+        self.assertIn('message', data.keys())
+        msg = data['message'].lower()
+
+        self.assertIn('class', msg)
+        self.assertIn('john', msg)
+        self.assertIn('all', msg)
+        self.assertIn('5', msg)
+        self.assertIn('7', msg)
+        self.assertIn('wednesday', msg)
+    
+    def test_bot_meeting_not_all_can_meet(self):
+        self.add_default_users()
+        user = { "name": "Rachit", "times": [{"from":1481828400, "to":1481832000}]}
+        data = json.dumps(user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        
+        response = self.app.get("/bot", query_string="command=meeting-john-sydney-carlos-rachit")
+        data = json.loads(response.data)
+        self.assertIn('message', data.keys())
+        msg = data['message'].lower()
+        msg_to_meet = msg[msg.index('is for'):]
+
+        self.assertIn('john', msg)
+        self.assertIn('sydney', msg)
+        self.assertIn('carlos', msg)
+        self.assertIn('rachit', msg)
+        self.assertNotIn('all', msg)
+        self.assertIn('december', msg)
+        self.assertIn('14', msg)
+        self.assertIn('6', msg)
+        self.assertIn('30', msg)
+
+######################################################################
 # Swagger UI test functions
 ######################################################################
 
@@ -389,6 +476,18 @@ class TestServer(unittest.TestCase):
         # print 'resp_data: ' + resp.data
         data = json.loads(resp.data)
         return len(data)
+
+    def add_default_users(self):
+        user = { "name": "John", "times": [{"from":1481734800, "to":1481742000}]}
+        data = json.dumps(user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        user = { "name": "Carlos", "times": [{"from":1481738400, "to":1481745600}]}
+        data = json.dumps(user)
+        self.app.post('/users', data=data, content_type='application/json')
+        user = { "name": "Sydney", "times": [{"from":1481731200, "to":1481740200}]}
+        data = json.dumps(user)
+        self.app.post('/users', data=data, content_type='application/json')
 
 ######################################################################
 #   M A I N

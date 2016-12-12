@@ -1,5 +1,6 @@
 import os
 import redis, fakeredis
+from datetime import datetime
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
@@ -227,6 +228,60 @@ def remove_times(id):
     else:
         return reply({'error' : 'Body must already be within the timeslots'}, HTTP_400_BAD_REQUEST)
 
+@app.route('/bot', methods=['GET'])
+def bot():
+    result = ''
+    numbers = {"one": 1,"two": 2,"three": 3,"four": 4,"five": 5,"six": 6,"seven": 7,"eight": 8,"nine": 9,}
+    command = request.args.get('command').split('-')
+
+    client = app.test_client()
+
+    if 'list' in command:
+        result = "I see you want a list of users. I'll give you all of the users. Paging will be implemented in the future. Here we go: "
+        users = get_from_redis('users')
+        usernames = [x['name'] for x in users.values()]
+        result += ander(usernames)
+
+    elif 'meeting' in command:
+        # Create dict of all words to numbers
+        #nums = {}
+        #for x in xrange(120):
+        #    nums[num2words(x)] = x
+        #length = 0
+        #if 'length' in command:
+        #    if 'hours' in command:
+        #        length_str = command[command.index('hours') - 1]
+        #    elif 'hour' in command:
+        #        length_str = command[command.index('hour') - 1]
+        #    elif 'minutes' in command:
+        #       length_str = command[command.index('minutes') - 1]
+        demo = request.args.get('demo') or False
+        if demo:
+            names, names_to_meet, _from, _to = 'John and the class', 'all of them', '5 PM', '7 PM on Wednesday'
+        else:
+            # Get the users to meet
+            all_users = get_from_redis('users')
+            candidates = filter(lambda w: w.lower() in [v['name'].lower() for v in all_users.values()], command)
+
+            # Get the ids of these users
+            ids = [str(k) for k, v in all_users.iteritems() if v['name'].lower() in candidates]
+
+            #Get meeting info
+            res = client.get('/meet', query_string='users='+','.join(ids))
+            info = json.loads(res.data)[0]
+            _from = datetime.fromtimestamp(info['from']).strftime('%A, %B %-d at %-I %-M %p')
+            _to = datetime.fromtimestamp(info['to']).strftime('%A, %B %-d at %-I %-M %p')
+            to_meet =  map(lambda x: all_users[x]['name'], info['people'])
+            if len(to_meet) == len(candidates):
+                names_to_meet = "all of them"
+            else:
+                names_to_meet = ander(to_meet)
+            names = ander(candidates)
+
+        result = "The best meeting for " + names + " is for " + names_to_meet + " to meet from " + _from + " til " + _to
+
+    return reply({'message': result}, HTTP_200_OK)
+
 @app.route('/meet', methods=['GET'])
 def meet():
     global users
@@ -323,6 +378,9 @@ def merge2(sched1, sched2):
                            first[1],
                            first[2]))
     return final_sched
+
+def ander(l):
+    return ' , '.join(l[:-1]) + ' and ' + l[-1] if l else ''
 
 def reply(message, rc):
     response = Response(json.dumps(message))

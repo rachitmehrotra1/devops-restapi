@@ -7,8 +7,11 @@
     "start": "node conversation.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  ,
-  "author": “Rachit Mehrotra , Carlos Guzman”,
+   "repository": {
+    "type": "git",
+    "url": "git@github.ibm.com:watsonkits/conversationkit.git"
+  },
+  "author": "Rachit Mehrotra , Carlos Guzman",
   "license": "ISC",
   "dependencies": {
     "mic": "^2.1.1",

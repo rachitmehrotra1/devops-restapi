@@ -137,22 +137,18 @@ textStream.on('data', function(str) {
             };
             console.log("Result from conversation:" ,con);
 */
-         function getKeyword(res){
-             //parse res to get keyword that matches api endpoint
-             return 'users';
-         }
 
          function connectDevchronops(res){
              var req = new XMLHttpRequest();
-             var kwd = getKeyword(res);
-             req.open('GET', 'http://devchronops.mybluemix.net/users', false);
-             //req.open('GET', 'http://devchronops.mybluemix.net/tj/' + kwd, false);
+             var command = res.replace(/\ /g, '-');
+             //var domain = 'devchronops.mybluemix.net';
+             var domain = 'localhost:5000';
+             req.open('GET', 'http://' + domain + '/bot?command=' + command, false);
 
              var result;
              req.addEventListener('load', function(){
                 console.log(this.responseText);
-                //result = JSON.parse(this.responseText).message;
-                result = JSON.parse(this.responseText)[0].name;
+                result = JSON.parse(this.responseText).message;
              });
              req.send();
              return result;
