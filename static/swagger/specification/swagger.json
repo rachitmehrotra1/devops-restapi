@@ -180,7 +180,7 @@
           "description" : "times the user is free",
           "required" : true,
           "schema" : {
-            "$ref" : "#/definitions/time"
+            "$ref" : "#/definitions/times"
           }
         } ],
         "responses" : {
@@ -210,7 +210,7 @@
           "description" : "times that you want to delete",
           "required" : true,
           "schema" : {
-            "$ref" : "#/definitions/time"
+            "$ref" : "#/definitions/times"
           }
         } ],
         "responses" : {
@@ -237,14 +237,14 @@
           "type" : "string"
         },
         "time" : {
-          "$ref" : "#/definitions/time"
+          "$ref" : "#/definitions/times"
         }
       }
     },
-    "time" : {
+    "times" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/time_inner"
+        "$ref" : "#/definitions/times_inner"
       }
     },
     "meetResponse" : {
@@ -269,7 +269,7 @@
         }
       }
     },
-    "time_inner" : {
+    "times_inner" : {
       "properties" : {
         "from" : {
           "type" : "number"

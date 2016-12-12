@@ -146,7 +146,7 @@ paths:
         description: "times the user is free"
         required: true
         schema:
-          $ref: "#/definitions/time"
+          $ref: "#/definitions/times"
       responses:
         200:
           description: "Add a time interval"
@@ -169,7 +169,7 @@ paths:
         description: "times that you want to delete"
         required: true
         schema:
-          $ref: "#/definitions/time"
+          $ref: "#/definitions/times"
       responses:
         200:
           description: "Deletes the user with the ID"
@@ -187,11 +187,11 @@ definitions:
       name:
         type: "string"
       time:
-        $ref: "#/definitions/time"
-  time:
+        $ref: "#/definitions/times"
+  times:
     type: "array"
     items:
-      $ref: "#/definitions/time_inner"
+      $ref: "#/definitions/times_inner"
   meetResponse:
     type: "object"
     properties:
@@ -206,7 +206,7 @@ definitions:
     properties:
       error:
         type: "string"
-  time_inner:
+  times_inner:
     properties:
       from:
         type: "number"
