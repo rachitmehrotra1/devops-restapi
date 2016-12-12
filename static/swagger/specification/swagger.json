@@ -11,7 +11,7 @@
   "consumes" : [ "application/json", "text/xml" ],
   "produces" : [ "application/json", "text/html" ],
   "paths" : {
-    "/meet?users={user1},{user2}&length={len}" : {
+    "/meet?users={user1},{user2}&length={length}" : {
       "get" : {
         "description" : "This is main feature of the API, the algorithm goes and searches through the free times of all the memebers of the meeting and finds the best possible common time.\n**There are be any number of users in the meeting, for this example we use 2 users**",
         "parameters" : [ {
@@ -27,7 +27,7 @@
           "required" : true,
           "type" : "integer"
         }, {
-          "name" : "len",
+          "name" : "length",
           "in" : "path",
           "description" : "Length of meeting",
           "required" : false,
@@ -107,7 +107,10 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Sends the user with the ID"
+            "description" : "Sends the user with the ID",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
           },
           "400" : {
             "description" : "User doesn't exist",

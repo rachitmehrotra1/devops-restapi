@@ -107,7 +107,10 @@ var spec = {
         } ],
         "responses" : {
           "200" : {
-            "description" : "Sends the user with the ID"
+            "description" : "Sends the user with the ID",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
           },
           "400" : {
             "description" : "User doesn't exist",
