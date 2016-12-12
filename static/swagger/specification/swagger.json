@@ -11,20 +11,26 @@
   "consumes" : [ "application/json", "text/xml" ],
   "produces" : [ "application/json", "text/html" ],
   "paths" : {
-    "/meet?users={id1},{id2}" : {
+    "/meet?users={user1},{user2}&length={len}" : {
       "get" : {
         "description" : "This is main feature of the API, the algorithm goes and searches through the free times of all the memebers of the meeting and finds the best possible common time.\n**There are be any number of users in the meeting, for this example we use 2 users**",
         "parameters" : [ {
-          "name" : "id1",
+          "name" : "user1",
           "in" : "path",
           "description" : "User1 of the meeting",
           "required" : true,
           "type" : "integer"
         }, {
-          "name" : "id2",
+          "name" : "user2",
           "in" : "path",
           "description" : "User2 of the meeting",
           "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "len",
+          "in" : "path",
+          "description" : "Length of meeting",
+          "required" : false,
           "type" : "integer"
         } ],
         "responses" : {
