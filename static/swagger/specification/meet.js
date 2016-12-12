@@ -185,7 +185,7 @@ var spec = {
           "type" : "integer"
         }, {
           "in" : "body",
-          "name" : "time",
+          "name" : "times",
           "description" : "times the user is free",
           "required" : true,
           "schema" : {
@@ -215,7 +215,7 @@ var spec = {
           "type" : "integer"
         }, {
           "in" : "body",
-          "name" : "time",
+          "name" : "times",
           "description" : "times that you want to delete",
           "required" : true,
           "schema" : {
@@ -245,7 +245,7 @@ var spec = {
         "name" : {
           "type" : "string"
         },
-        "time" : {
+        "times" : {
           "$ref" : "#/definitions/times"
         }
       }

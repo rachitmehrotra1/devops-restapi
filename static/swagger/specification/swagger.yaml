@@ -149,7 +149,7 @@ paths:
         required: true
         type: "integer"
       - in: "body"
-        name: "time"
+        name: "times"
         description: "times the user is free"
         required: true
         schema:
@@ -172,7 +172,7 @@ paths:
         required: true
         type: "integer"
       - in: "body"
-        name: "time"
+        name: "times"
         description: "times that you want to delete"
         required: true
         schema:
@@ -193,7 +193,7 @@ definitions:
     properties:
       name:
         type: "string"
-      time:
+      times:
         $ref: "#/definitions/times"
   times:
     type: "array"
