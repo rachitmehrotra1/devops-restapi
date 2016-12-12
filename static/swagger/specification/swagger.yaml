@@ -19,7 +19,7 @@ produces:
 - "application/json"
 - "text/html"
 paths:
-  /meet?users={user1},{user2}&length={length}:
+  /meet?users={user1},{user2}:
     get:
       description: "This is main feature of the API, the algorithm goes and searches\
         \ through the free times of all the memebers of the meeting and finds the\
@@ -36,10 +36,42 @@ paths:
         description: "User2 of the meeting"
         required: true
         type: "integer"
+      responses:
+        200:
+          description: "Best possible time for meeting"
+          schema:
+            type: "array"
+            title: "Meeting Time"
+            items:
+              $ref: "#/definitions/meetResponse"
+        400:
+          description: "Enter valid existing user ids"
+          schema:
+            type: "object"
+            title: "respone"
+            properties: {}
+  /meet?users={user1},{user2}&length={length}:
+    get:
+      description: "This is main feature of the API, the algorithm goes and searches\
+        \ through the free times of all the memebers of the meeting and finds the\
+        \ best possible common time. And the user can also specify the length of the\
+        \ meeting\n**There are be any number of users in the meeting, for this example\
+        \ we use 2 users**"
+      parameters:
+      - name: "user1"
+        in: "path"
+        description: "User1 of the meeting"
+        required: true
+        type: "integer"
+      - name: "user2"
+        in: "path"
+        description: "User2 of the meeting"
+        required: true
+        type: "integer"
       - name: "length"
         in: "path"
         description: "Length of meeting"
-        required: false
+        required: true
         type: "integer"
       responses:
         200:
