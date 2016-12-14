@@ -27,7 +27,7 @@ Visit the api root for all information about endpoints and possibilities:
 
 http://localhost:5000/
 
-Bluemix Address 
+Swagger UI Documentation and Test Endpoints are avaialable on Bluemix Address 
 
 http://devchronops.mybluemix.net/
 
