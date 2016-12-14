@@ -141,8 +141,8 @@ textStream.on('data', function(str) {
          function connectDevchronops(res){
              var req = new XMLHttpRequest();
              var command = res.replace(/\ /g, '-');
-             //var domain = 'devchronops.mybluemix.net';
-             var domain = 'localhost:5000';
+             var domain = 'devchronops.mybluemix.net';
+            // var domain = 'localhost:5000';
              req.open('GET', 'http://' + domain + '/bot?command=' + command, false);
 
              var result;
@@ -153,8 +153,12 @@ textStream.on('data', function(str) {
              req.send();
              return result;
          }
-
-         con = connectDevchronops(res);
+	con = connectDevchronops(res);
+	if (con=='')
+	{
+	con='Sorry! I coudn\'t understand you , would you mind repeating yourself?'
+	}
+         //con = connectDevchronops(res);
          var params = {
              text: con,
              voice: config.voice,
@@ -170,7 +174,7 @@ textStream.on('data', function(str) {
  Wave files are then played using alsa (native audio) tool.
 */
             tempStream = text_to_speech.synthesize(params).pipe(fs.createWriteStream('output.wav')).on('close', function() {
-                var create_audio = exec('aplay output.wav', function (error, stdout, stderr) {
+                var create_audio = exec('omxplayer output.wav', function (error, stdout, stderr) {
                     if (error !== null) {
                         console.log('exec error: ' + error);
                     }
