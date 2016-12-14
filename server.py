@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import Flask, Response, jsonify, request, json
 
 app = Flask(__name__)
-app.debug = True
+#app.debug = True
 # Status Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
