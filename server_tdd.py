@@ -400,6 +400,18 @@ class TestServer(unittest.TestCase):
         self.assertIn('6', msg)
         self.assertIn('30', msg)
 
+    def test_bot_meeting_no_users(self):
+        self.add_default_users()
+        
+        response = self.app.get("/bot", query_string="command=meeting")
+        data = json.loads(response.data)
+        self.assertIn('message', data.keys())
+        msg = data['message'].lower()
+
+        self.assertIn('sorry', msg)
+        self.assertIn('repeat', msg)
+        self.assertIn('any', msg)
+
     def test_bot_meeting_demo(self):
         self.add_default_users()
         

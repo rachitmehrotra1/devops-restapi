@@ -22,7 +22,7 @@ COPY requirements.txt /app
 RUN pip install -r /app/requirements.txt
 
 # Add the code as the last Docker layer because it changes the most
-COPY server.py /app
+ADD . /app
 
 # Run the service
 CMD [ "python", "server.py" ]
