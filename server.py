@@ -266,6 +266,9 @@ def bot():
             # Get the ids of these users
             ids = [str(k) for k, v in all_users.iteritems() if v['name'].lower() in candidates]
 
+            if not ids:
+                return reply({"message": "I'm sorry, I didn't get any existing users for the meeting. Can you repeat, please?"}, HTTP_200_OK)
+
             #Get meeting info
             res = client.get('/meet', query_string='users='+','.join(ids))
             info = json.loads(res.data)[0]
@@ -403,7 +406,12 @@ def init_redis(mock=False):
         redis_port = int(redis_creds['port'])
         redis_password = redis_creds['password']
     else:
-        redis_hostname = '127.0.0.1'
+        # Run from docker.
+        # $ docker run --rm -p 5000:5000 --link redis docker-server
+        # You may need to delete and rebuild the image:
+        # $ docker rmi docker-server
+        # $ docker build --no-cache -t docker-server .
+        redis_hostname = 'redis'
         redis_port = 6379
         redis_password = None
     global redis_server
