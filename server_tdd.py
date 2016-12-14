@@ -25,6 +25,14 @@ class TestServer(unittest.TestCase):
         server.data_reset()
         #server.data_load({ "id": 0, "name": "John Rofrano", "times": [ { "from":1477523957, "to":1477524957 } ] })
  
+    def test_dev_env(self):
+        import os
+        tmp = os.environ["VCAP_SERVICES"]
+        del os.environ["VCAP_SERVICES"]
+        self.assertTrue(server.init_redis(True) == None)
+        self.assertTrue(server.init_redis(False) == None)
+        os.environ["VCAP_SERVICES"] = tmp
+    
     def test_prod_env(self):
         import os
         # Check production environment works (obviously no credentials here, just check whether it'd be set properly)
@@ -297,7 +305,6 @@ class TestServer(unittest.TestCase):
         self.assertTrue( resp.status_code == HTTP_200_OK )
         self.assertTrue( json.loads(resp.data) == [])
 
-
     def test_meet_function_no_intersection(self):
         # add a new user
         user = { "name": "JR", "times": [{"from":10, "to":20}] }
@@ -317,6 +324,19 @@ class TestServer(unittest.TestCase):
         resp = self.app.get('/meet', query_string='users=1,2')
         self.assertTrue( resp.status_code == HTTP_200_OK )
         self.assertTrue( json.loads(resp.data) == [])
+
+    def test_meet_function_one_user(self):
+        # add a new user
+        user = { "name": "JR", "times": [{"from":10, "to":20}] }
+        data = json.dumps(user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        self.assertTrue( resp.status_code == HTTP_201_CREATED )
+        new_json = json.loads(resp.data)
+        self.assertTrue (new_json['name'] == 'JR')
+        
+        resp = self.app.get('/meet', query_string='users=1')
+        self.assertTrue( resp.status_code == HTTP_200_OK )
+        self.assertTrue( json.loads(resp.data) != [])
 
     def test_merge_first_no_intersect_at_beginning(self):
         result = server.merge([(30, 40, [2])], \
@@ -426,6 +446,21 @@ class TestServer(unittest.TestCase):
         self.assertIn('5', msg)
         self.assertIn('7', msg)
         self.assertIn('wednesday', msg)
+    
+    def test_bot_meeting_no_intersection(self):
+        self.add_default_users()
+        user = { "name": "Rachit", "times": [{"from":1481828400, "to":1481832000}]}
+        data = json.dumps(user)
+        resp = self.app.post('/users', data=data, content_type='application/json')
+        
+        response = self.app.get("/bot", query_string="command=meeting-carlos-rachit")
+        data = json.loads(response.data)
+        self.assertIn('message', data.keys())
+        msg = data['message'].lower()
+
+        self.assertIn('no times', msg)
+        self.assertIn('carlos', msg)
+        self.assertIn('rachit', msg)
     
     def test_bot_meeting_not_all_can_meet(self):
         self.add_default_users()
