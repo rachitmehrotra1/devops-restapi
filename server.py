@@ -271,6 +271,9 @@ def bot():
 
             #Get meeting info
             res = client.get('/meet', query_string='users='+','.join(ids))
+            if not json.loads(res.data):
+                to_meet = ander([all_users[x]['name'] for x in ids])
+                return reply({"message": "I'm sorry but there are no times when {} can meet".format(to_meet)}, HTTP_200_OK)
             info = json.loads(res.data)[0]
             _from = datetime.fromtimestamp(info['from']).strftime('%A, %B %-d at %-I %-M %p')
             _to = datetime.fromtimestamp(info['to']).strftime('%A, %B %-d at %-I %-M %p')
@@ -290,6 +293,10 @@ def meet():
     global users
     users = json.loads(redis_server.get('users'))
     ids = request.args.get('users').split(',')
+
+    if len(ids) == 1 and users.has_key(ids[0]):
+        return reply([{"from": x['from'], "to": x['to'], "people": [ids[0]]} for x in users[ids[0]]['times']], HTTP_200_OK)
+
     if any([not users.has_key(x) for x in ids]):
         return reply({ 'error' : 'Enter valid existing user ids'}, HTTP_400_BAD_REQUEST)
     single_schedules = map(lambda _id: [(x['from'], x['to'], [_id])
